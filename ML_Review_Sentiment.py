@@ -22,20 +22,28 @@ def preprocess_review(review):
 def advanced_preprocess_review(review):
     """
     Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
-    Adds a "not_" prefix to words following a negation in the sentence.
+    Adds a "not_" prefix to words following a negation in the sentence and cancels negation when detects so.
     """
     sentences = review.split(".")
     advanced_review = []
-    for punctuation in PUNCTUATIONS:
-            review = review.replace(punctuation, ' ')
     for sentence in sentences:
+        for punctuation in PUNCTUATIONS:
+            sentence = sentence.replace(punctuation, ' ')
         words = sentence.lower().split()
         negate = False
         for word in words:
             if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
                 negate = True
-            elif negate:
+            elif negate and word == "only":
+                negate = False
+            elif word == "far" and "from" in words[words.index(word)+1]:
+                negate = True
+            elif negate and word != "only":
                 word = "not_" + word
+            elif negate and word not in ["but", "however"]:
+                word = "not_" + word
+            else:
+                negate = False
             advanced_review.append(word)
     return advanced_review
 
@@ -47,8 +55,8 @@ class WordCounter:
 
     def count_words(self, path_pattern):
         """
-        Calculates number of how many times a word has been used in defined 'files'.
-        Updates dictionaries with review and usage counter.
+        Calculates number of how many times a word has been used in training positive and negative reviews kept in POS_FILES_FEED and NEG_FILES_FEED locations.
+        Updates dictionaries with review words and usage counters.
         """
         files = glob.glob(path_pattern)
         for file in files:
@@ -68,11 +76,10 @@ def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
     for word in review:
         if advanced and word.startswith("not_"):
             original_word = word[4:]  # Remove "not_" prefix
-            pos_counter = pos_words_count.get(original_word, 0)
-            neg_counter = neg_words_count.get(original_word, 0)
         else:
-            pos_counter = pos_words_count.get(word, 0)
-            neg_counter = neg_words_count.get(word, 0)
+            original_word = word
+        pos_counter = pos_words_count.get(original_word, 0)
+        neg_counter = neg_words_count.get(original_word, 0)
         total = pos_counter + neg_counter
         if total == 0:
             word_sentiment = 0
@@ -90,6 +97,8 @@ def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
 def print_sentiment(sentiment):
     if sentiment > 0:
         verdict = "positive"
+    elif sentiment == 0:
+        verdict = "neutral"
     else:
         verdict = "negative"
     print("\n---")
