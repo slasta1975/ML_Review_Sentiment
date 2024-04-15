@@ -34,7 +34,13 @@ def advanced_preprocess_review(review):
         for word in words:
             if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
                 negate = True
-            elif negate:
+            elif negate and word == "only":
+                negate = False
+            elif word == "far" and "from" in words[words.index(word)+1]:
+                negate = True
+            elif negate and word != "only":
+                word = "not_" + word
+            elif negate and word not in ["but", "however", "nevertheless"]:
                 word = "not_" + word
             else:
                 negate = False
