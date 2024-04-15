@@ -26,16 +26,19 @@ def advanced_preprocess_review(review):
     """
     sentences = review.split(".")
     advanced_review = []
+
     for sentence in sentences:
-        words = sentence.split()
-        negate = False
-        for word in words:
-            if word in ["not", "no", "never"]:
-                negate = True
-            elif negate:
-                word = "not_" + word
-                negate = False
-            advanced_review.append(word)
+        for punctuation in PUNCTUATIONS:
+            review = review.replace(punctuation, ' ')
+            words = sentence.lower().split()
+            negate = False
+            for word in words:
+                if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
+                    negate = True
+                elif negate:
+                    word = "not_" + word
+                    # negate = False
+                advanced_review.append(word)
     return advanced_review
 
 
