@@ -11,6 +11,15 @@ NEG_FILES_FEED = r"PP\M03\data\aclImdb\train\neg\*.txt"
 PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
 
 
+def preprocess_review(review):
+    """
+    Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
+    """
+    for punctuation in PUNCTUATIONS:
+        review = review.replace(punctuation, ' ')
+    return review.lower().split()
+
+
 class WordCounter:
     def __init__(self):
         self.pos_words_count = {}
@@ -25,20 +34,12 @@ class WordCounter:
         for file in files:
             with open(file, encoding='utf-8') as stream:
                 content = stream.read()
-            preprocessed_review = self.preprocess_review(content)
+            preprocessed_review = preprocess_review(content)
             for word in set(preprocessed_review):
                 if path_pattern == POS_FILES_FEED:
                     self.pos_words_count[word] = self.pos_words_count.get(word, 0) + 1
                 else:
                     self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
-
-    def preprocess_review(self, review):
-        """
-        Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
-        """
-        for punctuation in PUNCTUATIONS:
-            review = review.replace(punctuation, ' ')
-        return review.lower().split()
 
 
 def compute_sentiment(review, pos_words_count, neg_words_count):
@@ -57,6 +58,7 @@ def compute_sentiment(review, pos_words_count, neg_words_count):
     average_sentiment = cumulative_sentiment / len(review)
     return average_sentiment, sentiment_details
 
+
 def print_sentiment(sentiment):
     if sentiment > 0:
         verdict = "positive"
@@ -66,12 +68,14 @@ def print_sentiment(sentiment):
     print(f"This review is {verdict}, sentiment = {sentiment:.2f}")
     print("---")
 
+
 def print_sentiment_details(sentiment_details):
     print("\n---")
     print("Per word sentiment details:")
     for word, word_sentiment in sentiment_details:
         print(f"{word}: {word_sentiment:.2f}")
     print("---\n")
+
 
 def main():
     word_counter = WordCounter()
@@ -88,11 +92,11 @@ def main():
             print("No review for analysis")
             continue
 
-        review = word_counter.preprocess_review(review)
+        review = preprocess_review(review)
         sentiment, sentiment_details = compute_sentiment(review, word_counter.pos_words_count, word_counter.neg_words_count)
         print_sentiment(sentiment)
-        
-        preference = input("\nAre you interested in per word sentiment details? [y/n]:")
+
+        preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
         if preference.lower() == "y":
             print_sentiment_details(sentiment_details)
 
@@ -100,6 +104,7 @@ def main():
         if choice.lower() != "y":
             print("Exiting program...")
             break
+
 
 if __name__ == "__main__":
     main()
