@@ -5,8 +5,8 @@ Usage: python ML_Review_Sentiment.py
 import glob
 import sys
 
-POS_FILES_FEED = r"PP\M03\data\aclImdb\train\pos\*.txt"
-NEG_FILES_FEED = r"PP\M03\data\aclImdb\train\neg\*.txt"
+POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
+NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
 PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
 
 
