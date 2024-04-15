@@ -2,7 +2,6 @@
 
 Usage: python ML_Review_Sentiment.py
 """
-
 import glob
 import sys
 
@@ -18,6 +17,26 @@ def preprocess_review(review):
     for punctuation in PUNCTUATIONS:
         review = review.replace(punctuation, ' ')
     return review.lower().split()
+
+
+def advanced_preprocess_review(review):
+    """
+    Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
+    Adds a "not_" prefix to words following a negation in the sentence.
+    """
+    sentences = review.split(".")
+    advanced_review = []
+    for sentence in sentences:
+        words = sentence.split()
+        negate = False
+        for word in words:
+            if word in ["not", "no", "never"]:
+                negate = True
+            elif negate:
+                word = "not_" + word
+                negate = False
+            advanced_review.append(word)
+    return advanced_review
 
 
 class WordCounter:
@@ -42,17 +61,25 @@ class WordCounter:
                     self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
 
 
-def compute_sentiment(review, pos_words_count, neg_words_count):
+def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
     cumulative_sentiment = 0
     sentiment_details = []
     for word in review:
-        pos_counter = pos_words_count.get(word, 0)
-        neg_counter = neg_words_count.get(word, 0)
+        if advanced and word.startswith("not_"):
+            original_word = word[4:]  # Remove "not_" prefix
+            pos_counter = pos_words_count.get(original_word, 0)
+            neg_counter = neg_words_count.get(original_word, 0)
+        else:
+            pos_counter = pos_words_count.get(word, 0)
+            neg_counter = neg_words_count.get(word, 0)
         total = pos_counter + neg_counter
         if total == 0:
             word_sentiment = 0
         else:
-            word_sentiment = (pos_counter - neg_counter) / total
+            if advanced and word.startswith("not_"):
+                word_sentiment = -1 * (pos_counter - neg_counter) / total
+            else:
+                word_sentiment = (pos_counter - neg_counter) / total
         cumulative_sentiment += word_sentiment
         sentiment_details.append((word, word_sentiment))
     average_sentiment = cumulative_sentiment / len(review)
@@ -92,8 +119,15 @@ def main():
             print("No review for analysis")
             continue
 
-        review = preprocess_review(review)
-        sentiment, sentiment_details = compute_sentiment(review, word_counter.pos_words_count, word_counter.neg_words_count)
+        advanced_analysis = input("\nDo you want to perform advanced sentiment analysis? [y/n]: ")
+        if advanced_analysis.lower() == "y":
+            review = advanced_preprocess_review(review)
+            advanced = True
+        else:
+            review = preprocess_review(review)
+            advanced = False
+
+        sentiment, sentiment_details = compute_sentiment(review, word_counter.pos_words_count, word_counter.neg_words_count, advanced)
         print_sentiment(sentiment)
 
         preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
