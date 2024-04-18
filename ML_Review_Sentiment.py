@@ -1,12 +1,10 @@
-""" Decides whether a given reivew is positive or negative based on analyzing a sentiment of a given review against a simple model based on 25 thousand opinions.
-
-Usage: python ML_Review_Sentiment.py
-"""
 import glob
 import sys
+import os
 
 POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
 NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
+
 PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
 
 
@@ -34,7 +32,7 @@ def advanced_preprocess_review(review):
         for word in words:
             if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
                 negate = True
-            elif word == "far" and "from" in words[words.index(word)+1]:
+            elif word == "far" and "from" in words[words.index(word) + 1]:
                 negate = True
             elif negate and word == "only":
                 negate = False
@@ -112,7 +110,36 @@ def print_sentiment_details(sentiment_details):
     print("---\n")
 
 
+def get_next_review_file(review_files_path):
+    """
+    Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory,
+    where X is the smallest available integer starting with 1.
+    """
+    files = os.listdir(review_files_path)
+    if not files:
+        return "Review1.txt"
+    else:
+        file_numbers = [int(file.split("Review")[1].split(".")[0]) for file in files if file.startswith("Review")]
+        if not file_numbers:
+            return "Review1.txt"
+        next_file_number = max(file_numbers) + 1
+        return f"Review{next_file_number}.txt"
+
+
+def save_review(review, review_files_path):
+    """
+    Saves the provided review in the REVIEW_FILES_PATH location using the ReviewX.txt pattern,
+    where X is the smallest available integer starting with 1 if there is no review file yet.
+    """
+    next_file = get_next_review_file(review_files_path)
+    with open(os.path.join(review_files_path, next_file), 'w', encoding='utf-8') as file:
+        file.write(review)
+    print(f"Review saved to {next_file}")
+
+
 def main():
+    REVIEW_FILES_PATH = os.path.dirname(os.path.abspath(__file__))
+
     word_counter = WordCounter()
     word_counter.count_words(POS_FILES_FEED)
     word_counter.count_words(NEG_FILES_FEED)
@@ -129,18 +156,23 @@ def main():
 
         advanced_analysis = input("\nDo you want to perform advanced sentiment analysis? [y/n]: ")
         if advanced_analysis.lower() == "y":
-            review = advanced_preprocess_review(review)
+            preprocessed_review = advanced_preprocess_review(review)
             advanced = True
         else:
-            review = preprocess_review(review)
+            preprocessed_review = preprocess_review(review)
             advanced = False
 
-        sentiment, sentiment_details = compute_sentiment(review, word_counter.pos_words_count, word_counter.neg_words_count, advanced)
+        sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count,
+                                                         word_counter.neg_words_count, advanced)
         print_sentiment(sentiment)
 
         preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
         if preference.lower() == "y":
             print_sentiment_details(sentiment_details)
+
+        save_review_choice = input("\nDo you want to save this review? [y/n]: ")
+        if save_review_choice.lower() == "y":
+            save_review(review, REVIEW_FILES_PATH)
 
         choice = input("\nDo you want to analyze another review? [y/n]: ")
         if choice.lower() != "y":
