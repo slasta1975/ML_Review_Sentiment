@@ -90,39 +90,41 @@ def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
 
 
 def print_sentiment(sentiment):
-    if sentiment > 0:
+    rounded_sentiment = round(sentiment, 2)
+    if rounded_sentiment > 0:
         verdict = "positive"
-    elif sentiment == 0:
+    elif rounded_sentiment == 0:
         verdict = "neutral"
     else:
         verdict = "negative"
-    print("\n---")
+    print("\n------------------------------------------")
     print(f"This review is {verdict}, sentiment = {sentiment:.2f}")
-    print("---")
+    print("------------------------------------------")
 
 
 def print_sentiment_details(sentiment_details):
-    print("\n---")
+    print("\n---------------------------")
     print("Per word sentiment details:")
+    print("---------------------------")
     for word, word_sentiment in sentiment_details:
         print(f"{word}: {word_sentiment:.2f}")
-    print("---\n")
+    print("---------------------------")
 
 
 def get_next_review_file(review_files_path):
     """
-    Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory,
-    where X is the smallest available integer starting with 1.
+    Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory, where X is the smallest available integer starting with 1.
     """
-    files = os.listdir(review_files_path)
-    if not files:
-        return "Review1.txt"
-    else:
-        file_numbers = [int(file.split("Review")[1].split(".")[0]) for file in files if file.startswith("Review")]
-        if not file_numbers:
-            return "Review1.txt"
-        next_file_number = max(file_numbers) + 1
-        return f"Review{next_file_number}.txt"
+    try:
+        files = os.listdir(review_files_path)
+        existing_numbers = [int(file.split("Review")[1].split(".")[0]) for file in files if file.startswith("Review")]
+        next_number = 1
+        while next_number in existing_numbers:
+            next_number += 1
+        return f"Review{next_number}.txt"
+    except FileNotFoundError:
+        print("Directory not found. Please make sure the directory exists.")
+        return None
 
 
 def save_review(review, review_files_path):
@@ -133,43 +135,106 @@ def save_review(review, review_files_path):
     next_file = get_next_review_file(review_files_path)
     with open(os.path.join(review_files_path, next_file), 'w', encoding='utf-8') as file:
         file.write(review)
+    print("\n--------------------------------------")
     print(f"Review saved to {next_file}")
+    print("--------------------------------------")
+    # Wait for Enter to return to the main menu
+    input("\nPress Enter to return to the main menu... ")
+    return None
+
+def list_review_files(review_files_path):
+    """
+    Lists the review files available in the provided path along with their first sentences.
+    """
+    try:
+        files = [file for file in os.listdir(review_files_path) if file.endswith('.txt')]
+        if not files:
+            print("\nNo review files found.\n")
+            return None
+        sorted_files = sorted(files, key=lambda x: int(x.split("Review")[1].split(".")[0]))
+        print("\n--------------------------------------")
+        print("Review files found in the directory:")
+        print("--------------------------------------")
+        for i, file_name in enumerate(sorted_files, 1):
+            with open(os.path.join(review_files_path, file_name), 'r', encoding='utf-8') as file:
+                content = file.read()
+                sentences = content.split('.')
+                if len(sentences) > 1:
+                    first_sentence = sentences[0] + ('...' if sentences[0] else '')
+                else:
+                    first_sentence = content.strip()
+                print(f"{i}. {file_name} - {first_sentence}")
+        print("--------------------------------------")
+        return sorted_files
+    except FileNotFoundError:
+
+        print("\nDirectory not found. Please make sure the directory exists.\n")
+        return None
 
 
 def read_review_file(review_files_path):
     """
     Reads a review file from the provided path.
     """
-    try:
-        files = [file for file in os.listdir(review_files_path) if file.endswith('.txt')]
-        if not files:
-            print("No review files found.")
+    files = list_review_files(review_files_path)
+    if not files:
+        return None
+
+    print("\nEnter the number of the review file you want to load (press Enter to return to the main menu): ", end="")
+    while True:
+        choice = input()
+        if choice.strip() == "":
+            print("\nReturning to the main menu...")
             return None
 
-        print("\nReview files found in the directory:")
-        for i, file_name in enumerate(files, 1):
-            with open(os.path.join(review_files_path, file_name), 'r', encoding='utf-8') as file:
-                first_sentence = file.readline().strip()
-            print(f"{i}. {file_name} - {first_sentence}")
-
-        choice = input("Enter the number of the review file you want to load: ")
         try:
             choice = int(choice)
             if choice < 1 or choice > len(files):
-                print("Invalid choice. Please enter a number within the range.")
-                return None
+                print("\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ", end="")
+                continue
         except ValueError:
-            print("Invalid input. Please enter a valid number.")
-            return None
+            print("\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ", end="")
+            continue
 
         chosen_file = os.path.join(review_files_path, files[choice - 1])
         with open(chosen_file, 'r', encoding='utf-8') as file:
             review_content = file.read()
-            print("\nReview content:")
+            print("\nReview file full content:")
             print(review_content)
-        return review_content
-    except FileNotFoundError:
-        print("Directory not found. Please make sure the directory exists.")
+            return review_content  # Return the content of the chosen file
+        break  # Exit loop if file successfully read
+
+
+def delete_review_file(review_files_path):
+    """
+    Deletes a review file from the provided path.
+    """
+    files = list_review_files(review_files_path)
+    if not files:
+        return None
+
+    print("\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ", end="")
+    while True:
+        choice = input()
+        if choice.strip() == "":
+            print("\nReturning to the main menu...")
+            return None
+
+        try:
+            choice = int(choice)
+            if choice < 1 or choice > len(files):
+                print("\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ", end="")
+                continue
+        except ValueError:
+            print("\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ", end="")
+            continue
+
+        chosen_file = os.path.join(review_files_path, files[choice - 1])
+        os.remove(chosen_file)
+        print(f"\nReview file '{files[choice - 1]}' has been deleted.")
+
+        # Wait for Enter to return to the main menu
+        input("\nPress Enter to return to the main menu... ")
         return None
 
 
@@ -180,17 +245,20 @@ def main():
     word_counter.count_words(NEG_FILES_FEED)
 
     while True:
-        print("\nMain Menu:")
+        print("\n----------")
+        print("Main Menu:")
+        print("----------")
         print("1. Enter your review for analysis")
-        print("2. Load a review file for analysis")
-        print("3. Exit")
+        print("2. Read a review file for analysis")
+        print("3. Delete a review file")
+        print("4. Exit")
+        print("----------")
+        
 
-        choice = input("Enter your choice (1/2/3): ")
+        choice = input("Enter your choice (1/2/3/4): ")
 
         if choice == "1":
-            review = input("\nProvide your review (or enter 'exit' to return to the main menu): ")
-            if review.lower() == "exit":
-                continue
+            review = input("\nProvide your review: ")
 
             if len(review) == 0:
                 print("No review for analysis")
@@ -241,8 +309,7 @@ def main():
                     preprocessed_review = preprocess_review(review)
                     advanced = False
 
-                sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count,
-                                                                 word_counter.neg_words_count, advanced)
+                sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count,word_counter.neg_words_count, advanced)
                 print_sentiment(sentiment)
 
                 preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
@@ -260,13 +327,18 @@ def main():
                         advanced_preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
                         if advanced_preference.lower() == "y":
                             print_sentiment_details(advanced_sentiment_details)
+            # Wait for Enter to return to the main menu
+            input("\nPress Enter to return to the main menu... ")
 
         elif choice == "3":
+            delete_review_file(REVIEW_FILES_PATH)
+
+        elif choice == "4" or choice == "":
             print("Exiting program...")
             break
 
         else:
-            print("Invalid choice. Please enter a valid option (1/2/3).")
+            print("Invalid choice. Please enter a valid option (1/2/3/4).")
 
 if __name__ == "__main__":
     main()
