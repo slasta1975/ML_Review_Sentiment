@@ -1,10 +1,8 @@
 import glob
-import sys
 import os
 
 POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
 NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
-
 PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
 
 
@@ -170,12 +168,24 @@ def main():
         if preference.lower() == "y":
             print_sentiment_details(sentiment_details)
 
+        if advanced_analysis.lower() != "y":
+            advanced_option = input("\nWould you like to perform advanced analysis after all? [y/n]: ")
+            if advanced_option.lower() == "y":
+                advanced_sentiment, advanced_sentiment_details = compute_sentiment(
+                    advanced_preprocess_review(review), word_counter.pos_words_count,
+                    word_counter.neg_words_count, True
+                )
+                print_sentiment(advanced_sentiment)
+                advanced_preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+                if advanced_preference.lower() == "y":
+                    print_sentiment_details(advanced_sentiment_details)
+
         save_review_choice = input("\nDo you want to save this review? [y/n]: ")
         if save_review_choice.lower() == "y":
             save_review(review, REVIEW_FILES_PATH)
 
-        choice = input("\nDo you want to analyze another review? [y/n]: ")
-        if choice.lower() != "y":
+        another_review_choice = input("\nDo you want to analyze another review? [y/n]: ")
+        if another_review_choice.lower() != "y":
             print("Exiting program...")
             break
 
