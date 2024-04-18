@@ -3,6 +3,7 @@ import os
 
 POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
 NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
+REVIEW_FILES_PATH = os.path.dirname(os.path.abspath(__file__))
 PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
 
 
@@ -147,9 +148,11 @@ def read_review_file(review_files_path):
 
         print("\nReview files found in the directory:")
         for i, file_name in enumerate(files, 1):
-            print(f"{i}. {file_name}")
+            with open(os.path.join(review_files_path, file_name), 'r', encoding='utf-8') as file:
+                first_sentence = file.readline().strip()
+            print(f"{i}. {file_name} - {first_sentence}")
 
-        choice = input("Enter the number of the review file you want to read: ")
+        choice = input("Enter the number of the review file you want to load: ")
         try:
             choice = int(choice)
             if choice < 1 or choice > len(files):
@@ -171,7 +174,6 @@ def read_review_file(review_files_path):
 
 
 def main():
-    REVIEW_FILES_PATH = os.path.dirname(os.path.abspath(__file__))
 
     word_counter = WordCounter()
     word_counter.count_words(POS_FILES_FEED)
