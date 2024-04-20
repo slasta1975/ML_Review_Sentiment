@@ -5,7 +5,6 @@ from typing import List, Tuple, Dict
 POS_FILES_FEED: str = r"train\pos\*.txt"
 NEG_FILES_FEED: str = r"train\neg\*.txt"
 REVIEW_FILES_PATH: str = r"reviews"
-# REVIEW_FILES_PATH: str = os.path.dirname(os.path.abspath(__file__))
 PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
 
 
