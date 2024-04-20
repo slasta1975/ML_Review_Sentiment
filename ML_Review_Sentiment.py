@@ -45,7 +45,6 @@ def advanced_preprocess_review(review: str) -> List[str]:
 
 
 class WordCounter:
-
     def __init__(self):
         self.pos_words_count: Dict[str, int] = {}
         self.neg_words_count: Dict[str, int] = {}
@@ -149,8 +148,6 @@ def save_review(review: str, review_files_path: str) -> None:
     print("\n--------------------------------------")
     print(f"Review saved to {next_file}")
     print("--------------------------------------")
-    # Wait for Enter to return to the main menu
-    input("\nPress Enter to return to the main menu... ")
     return None
 
 
@@ -267,119 +264,44 @@ def delete_review_file(review_files_path: str) -> None:
 
         chosen_file = os.path.join(review_files_path, files[choice - 1])
         os.remove(chosen_file)
-        print(f"\nReview file '{files[choice - 1]}' has been deleted.")
+        print("\n--------------------------------------")
+        print(f"Review file '{files[choice - 1]}' has been deleted.")
+        print("--------------------------------------")
         input("\nPress Enter to return to the main menu... ")
         return None
-    
 
-def enter_review_for_analysis(word_counter: WordCounter) -> None:
+
+def enter_or_read_review_for_analysis(word_counter: WordCounter, is_enter_review: bool) -> None:
     """
-    Prompts the user to enter a review for analysis and performs sentiment analysis on it.
+    Prompts the user to enter a review for analysis or reads a review file for analysis based on the is_enter_review parameter.
     """
-    review: str = input("\nProvide your review: ")
-
-    if len(review) == 0:
-        print("No review for analysis")
-        return
-
-    advanced_analysis: str = input(
-        "\nDo you want to perform advanced sentiment analysis? [y/n]: "
-    )
-    if advanced_analysis.lower() == "y":
-        preprocessed_review: List[str] = advanced_preprocess_review(review)
-        advanced: bool = True
+    if is_enter_review:
+        review = input("\nProvide your review: ")
+        if len(review) == 0:
+            print("No review for analysis")
+            return
     else:
-        preprocessed_review: List[str] = preprocess_review(review)
-        advanced: bool = False
+        review = read_review_file(REVIEW_FILES_PATH)
+        if not review:
+            return
 
-    sentiment, sentiment_details = compute_sentiment(
-        preprocessed_review,
-        word_counter.pos_words_count,
-        word_counter.neg_words_count,
-        advanced,
-    )
+    advanced_analysis = input("\nDo you want to perform advanced sentiment analysis? [y/n]: ")
+    preprocessed_review = advanced_preprocess_review(review) if advanced_analysis.lower() == "y" else preprocess_review(review)
+    advanced = advanced_analysis.lower() == "y"
+
+    sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count, word_counter.neg_words_count, advanced)
     print_sentiment(sentiment)
 
-    preference: str = input(
-        "\nAre you interested in per word sentiment details? [y/n]: "
-    )
+    preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
     if preference.lower() == "y":
         print_sentiment_details(sentiment_details)
+    else:
+        return
 
-    if advanced_analysis.lower() != "y":
-        advanced_option: str = input(
-            "\nWould you like to perform advanced analysis on this review? [y/n]: "
-        )
-        if advanced_option.lower() == "y":
-            advanced_sentiment, advanced_sentiment_details = compute_sentiment(
-                advanced_preprocess_review(review),
-                word_counter.pos_words_count,
-                word_counter.neg_words_count,
-                True,
-            )
-            print_sentiment(advanced_sentiment)
-            advanced_preference: str = input(
-                "\nAre you interested in per word sentiment details? [y/n]: "
-            )
-            if advanced_preference.lower() == "y":
-                print_sentiment_details(advanced_sentiment_details)
-
-    save_review_choice: str = input("\nDo you want to save this review? [y/n]: ")
-    if save_review_choice.lower() == "y":
-        save_review(review, REVIEW_FILES_PATH)
-
-
-def read_review_for_analysis(word_counter: WordCounter) -> None:
-    """
-    Reads a review file for analysis.
-    """
-    read_review_content: str = read_review_file(REVIEW_FILES_PATH)
-    if read_review_content:
-        review: str = read_review_content
-
-        advanced_analysis: str = input(
-            "\nDo you want to perform advanced sentiment analysis? [y/n]: "
-        )
-        if advanced_analysis.lower() == "y":
-            preprocessed_review: List[str] = advanced_preprocess_review(review)
-            advanced: bool = True
-        else:
-            preprocessed_review: List[str] = preprocess_review(review)
-            advanced: bool = False
-
-        sentiment, sentiment_details = compute_sentiment(
-            preprocessed_review,
-            word_counter.pos_words_count,
-            word_counter.neg_words_count,
-            advanced,
-        )
-        print_sentiment(sentiment)
-
-        preference: str = input(
-            "\nAre you interested in per word sentiment details? [y/n]: "
-        )
-        if preference.lower() == "y":
-            print_sentiment_details(sentiment_details)
-
-        if advanced_analysis.lower() != "y":
-            advanced_option: str = input(
-                "\nWould you like to perform advanced analysis after all? [y/n]: "
-            )
-            if advanced_option.lower() == "y":
-                advanced_sentiment, advanced_sentiment_details = (
-                    compute_sentiment(
-                        advanced_preprocess_review(review),
-                        word_counter.pos_words_count,
-                        word_counter.neg_words_count,
-                        True,
-                    )
-                )
-                print_sentiment(advanced_sentiment)
-                advanced_preference: str = input(
-                    "\nAre you interested in per word sentiment details? [y/n]: "
-                )
-                if advanced_preference.lower() == "y":
-                    print_sentiment_details(advanced_sentiment_details)
+    if  is_enter_review:
+        save_review_choice = input("\nDo you want to save this review? [y/n]: ")
+        if save_review_choice.lower() == "y":
+            save_review(review, REVIEW_FILES_PATH)
     input("\nPress Enter to return to the main menu... ")
 
 
@@ -402,10 +324,10 @@ def main() -> None:
         choice = input("Enter your choice (1/2/3/4): ")
 
         if choice == "1":
-            enter_review_for_analysis(word_counter)
+            enter_or_read_review_for_analysis(word_counter, True)
 
         elif choice == "2":
-            read_review_for_analysis(word_counter)
+            enter_or_read_review_for_analysis(word_counter, False)
            
         elif choice == "3":
             delete_review_file(REVIEW_FILES_PATH)
