@@ -1,6 +1,9 @@
 # Sentiment Analysis of Movie Reviews
 
-This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. It counts the occurrences of positive and negative words in the reviews to determine their sentiment.
+This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. 
+It counts the occurrences of positive and negative words in the reviews to determine their sentiment. 
+Reviews can be manually entered or loaded from saved text files. 
+An advanced mode analysis is also possible which can detect negation in the analysed review and inverse sentiments of affected words thus improving the whole review sentiment analysis. 
 
 ## Features
 
