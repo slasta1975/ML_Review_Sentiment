@@ -1,6 +1,4 @@
 import pytest
-import os
-import tempfile
 from main import *
 
 
@@ -41,35 +39,3 @@ def test_compute_sentiment():
     expected_sentiment_details = [("good", 1.0), ("movie", 0.0)]
     assert sentiment_details == expected_sentiment_details
 
-# def test_list_review_files(temp_review_files_path):
-#     # Create test review files
-#     file1 = temp_review_files_path.join("Review1.txt")
-#     file1.write("Sample review 1")
-#     file2 = temp_review_files_path.join("Review2.txt")
-#     file2.write("Sample review 2")
-
-#     with tempfile.TemporaryDirectory() as tmpdir:
-#         list_review_files(tmpdir)
-
-# def test_read_review_file(temp_review_files_path):
-#     # Create test review files
-#     file1 = temp_review_files_path.join("Review1.txt")
-#     file1.write("Sample review 1")
-#     file2 = temp_review_files_path.join("Review2.txt")
-#     file2.write("Sample review 2")
-
-#     with tempfile.TemporaryDirectory() as tmpdir:
-#         review_content = read_review_file(tmpdir)
-#         assert review_content == "Sample review 1"
-
-# def test_delete_review_file(temp_review_files_path):
-#     # Create test review files
-#     file1 = temp_review_files_path.join("Review1.txt")
-#     file1.write("Sample review 1")
-#     file2 = temp_review_files_path.join("Review2.txt")
-#     file2.write("Sample review 2")
-#
-#    delete_review_file(temp_review_files_path)
-#
-#    # Check if the file was deleted
-#    assert not os.listdir(temp_review_files_path)
