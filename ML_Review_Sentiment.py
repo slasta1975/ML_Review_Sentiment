@@ -4,7 +4,7 @@ import os
 POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
 NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
 REVIEW_FILES_PATH = os.path.dirname(os.path.abspath(__file__))
-PUNCTUATIONS = ['.', ',', '?', '!', ':', ';', '-', '"', '<br />']
+PUNCTUATIONS = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
 
 
 def preprocess_review(review):
@@ -12,7 +12,7 @@ def preprocess_review(review):
     Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
     """
     for punctuation in PUNCTUATIONS:
-        review = review.replace(punctuation, ' ')
+        review = review.replace(punctuation, " ")
     return review.lower().split()
 
 
@@ -25,7 +25,7 @@ def advanced_preprocess_review(review):
     advanced_review = []
     for sentence in sentences:
         for punctuation in PUNCTUATIONS:
-            sentence = sentence.replace(punctuation, ' ')
+            sentence = sentence.replace(punctuation, " ")
         words = sentence.lower().split()
         negate = False
         for word in words:
@@ -44,6 +44,7 @@ def advanced_preprocess_review(review):
 
 
 class WordCounter:
+
     def __init__(self):
         self.pos_words_count = {}
         self.neg_words_count = {}
@@ -55,7 +56,7 @@ class WordCounter:
         """
         files = glob.glob(path_pattern)
         for file in files:
-            with open(file, encoding='utf-8') as stream:
+            with open(file, encoding="utf-8") as stream:
                 content = stream.read()
             preprocessed_review = preprocess_review(content)
             for word in set(preprocessed_review):
@@ -66,6 +67,20 @@ class WordCounter:
 
 
 def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
+    """
+    Compute the sentiment of a review based on positive and negative word counts.
+
+    Args:
+        review (list): A list of words in the review.
+        pos_words_count (dict): A dictionary containing the count of positive words.
+        neg_words_count (dict): A dictionary containing the count of negative words.
+        advanced (bool, optional): Whether to perform advanced sentiment analysis. 
+            Defaults to False.
+
+    Returns:
+        tuple: A tuple containing the average sentiment score of the review and 
+            a list of tuples with each word in the review along with its sentiment score.
+    """
     cumulative_sentiment = 0
     sentiment_details = []
     for word in review:
@@ -117,7 +132,11 @@ def get_next_review_file(review_files_path):
     """
     try:
         files = os.listdir(review_files_path)
-        existing_numbers = [int(file.split("Review")[1].split(".")[0]) for file in files if file.startswith("Review")]
+        existing_numbers = [
+            int(file.split("Review")[1].split(".")[0])
+            for file in files
+            if file.startswith("Review")
+        ]
         next_number = 1
         while next_number in existing_numbers:
             next_number += 1
@@ -133,7 +152,9 @@ def save_review(review, review_files_path):
     where X is the smallest available integer starting with 1 if there is no review file yet.
     """
     next_file = get_next_review_file(review_files_path)
-    with open(os.path.join(review_files_path, next_file), 'w', encoding='utf-8') as file:
+    with open(
+        os.path.join(review_files_path, next_file), "w", encoding="utf-8"
+    ) as file:
         file.write(review)
     print("\n--------------------------------------")
     print(f"Review saved to {next_file}")
@@ -142,25 +163,32 @@ def save_review(review, review_files_path):
     input("\nPress Enter to return to the main menu... ")
     return None
 
+
 def list_review_files(review_files_path):
     """
     Lists the review files available in the provided path along with their first sentences.
     """
     try:
-        files = [file for file in os.listdir(review_files_path) if file.endswith('.txt')]
+        files = [
+            file for file in os.listdir(review_files_path) if file.endswith(".txt")
+        ]
         if not files:
             print("\nNo review files found.\n")
             return None
-        sorted_files = sorted(files, key=lambda x: int(x.split("Review")[1].split(".")[0]))
+        sorted_files = sorted(
+            files, key=lambda x: int(x.split("Review")[1].split(".")[0])
+        )
         print("\n--------------------------------------")
         print("Review files found in the directory:")
         print("--------------------------------------")
         for i, file_name in enumerate(sorted_files, 1):
-            with open(os.path.join(review_files_path, file_name), 'r', encoding='utf-8') as file:
+            with open(
+                os.path.join(review_files_path, file_name), "r", encoding="utf-8"
+            ) as file:
                 content = file.read()
-                sentences = content.split('.')
+                sentences = content.split(".")
                 if len(sentences) > 1:
-                    first_sentence = sentences[0] + ('...' if sentences[0] else '')
+                    first_sentence = sentences[0] + ("..." if sentences[0] else "")
                 else:
                     first_sentence = content.strip()
                 print(f"{i}. {file_name} - {first_sentence}")
@@ -180,7 +208,10 @@ def read_review_file(review_files_path):
     if not files:
         return None
 
-    print("\nEnter the number of the review file you want to load (press Enter to return to the main menu): ", end="")
+    print(
+        "\nEnter the number of the review file you want to load (press Enter to return to the main menu): ",
+        end="",
+    )
     while True:
         choice = input()
         if choice.strip() == "":
@@ -190,19 +221,25 @@ def read_review_file(review_files_path):
         try:
             choice = int(choice)
             if choice < 1 or choice > len(files):
-                print("\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ", end="")
+                print(
+                    "\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ",
+                    end="",
+                )
                 continue
         except ValueError:
-            print("\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ", end="")
+            print(
+                "\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ",
+                end="",
+            )
             continue
 
         chosen_file = os.path.join(review_files_path, files[choice - 1])
-        with open(chosen_file, 'r', encoding='utf-8') as file:
+        with open(chosen_file, "r", encoding="utf-8") as file:
             review_content = file.read()
             print("\nReview file full content:")
             print(review_content)
-            return review_content  # Return the content of the chosen file
-        break  # Exit loop if file successfully read
+            return review_content
+        break
 
 
 def delete_review_file(review_files_path):
@@ -213,7 +250,10 @@ def delete_review_file(review_files_path):
     if not files:
         return None
 
-    print("\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ", end="")
+    print(
+        "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ",
+        end="",
+    )
     while True:
         choice = input()
         if choice.strip() == "":
@@ -223,17 +263,21 @@ def delete_review_file(review_files_path):
         try:
             choice = int(choice)
             if choice < 1 or choice > len(files):
-                print("\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ", end="")
+                print(
+                    "\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ",
+                    end="",
+                )
                 continue
         except ValueError:
-            print("\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ", end="")
+            print(
+                "\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ",
+                end="",
+            )
             continue
 
         chosen_file = os.path.join(review_files_path, files[choice - 1])
         os.remove(chosen_file)
         print(f"\nReview file '{files[choice - 1]}' has been deleted.")
-
-        # Wait for Enter to return to the main menu
         input("\nPress Enter to return to the main menu... ")
         return None
 
@@ -253,7 +297,6 @@ def main():
         print("3. Delete a review file")
         print("4. Exit")
         print("----------")
-        
 
         choice = input("Enter your choice (1/2/3/4): ")
 
@@ -264,7 +307,9 @@ def main():
                 print("No review for analysis")
                 continue
 
-            advanced_analysis = input("\nDo you want to perform advanced sentiment analysis? [y/n]: ")
+            advanced_analysis = input(
+                "\nDo you want to perform advanced sentiment analysis? [y/n]: "
+            )
             if advanced_analysis.lower() == "y":
                 preprocessed_review = advanced_preprocess_review(review)
                 advanced = True
@@ -272,23 +317,35 @@ def main():
                 preprocessed_review = preprocess_review(review)
                 advanced = False
 
-            sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count,
-                                                             word_counter.neg_words_count, advanced)
+            sentiment, sentiment_details = compute_sentiment(
+                preprocessed_review,
+                word_counter.pos_words_count,
+                word_counter.neg_words_count,
+                advanced,
+            )
             print_sentiment(sentiment)
 
-            preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+            preference = input(
+                "\nAre you interested in per word sentiment details? [y/n]: "
+            )
             if preference.lower() == "y":
                 print_sentiment_details(sentiment_details)
 
             if advanced_analysis.lower() != "y":
-                advanced_option = input("\nWould you like to perform advanced analysis on this review? [y/n]: ")
+                advanced_option = input(
+                    "\nWould you like to perform advanced analysis on this review? [y/n]: "
+                )
                 if advanced_option.lower() == "y":
                     advanced_sentiment, advanced_sentiment_details = compute_sentiment(
-                        advanced_preprocess_review(review), word_counter.pos_words_count,
-                        word_counter.neg_words_count, True
+                        advanced_preprocess_review(review),
+                        word_counter.pos_words_count,
+                        word_counter.neg_words_count,
+                        True,
                     )
                     print_sentiment(advanced_sentiment)
-                    advanced_preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+                    advanced_preference = input(
+                        "\nAre you interested in per word sentiment details? [y/n]: "
+                    )
                     if advanced_preference.lower() == "y":
                         print_sentiment_details(advanced_sentiment_details)
 
@@ -301,7 +358,9 @@ def main():
             if read_review_content:
                 review = read_review_content
 
-                advanced_analysis = input("\nDo you want to perform advanced sentiment analysis? [y/n]: ")
+                advanced_analysis = input(
+                    "\nDo you want to perform advanced sentiment analysis? [y/n]: "
+                )
                 if advanced_analysis.lower() == "y":
                     preprocessed_review = advanced_preprocess_review(review)
                     advanced = True
@@ -309,25 +368,39 @@ def main():
                     preprocessed_review = preprocess_review(review)
                     advanced = False
 
-                sentiment, sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count,word_counter.neg_words_count, advanced)
+                sentiment, sentiment_details = compute_sentiment(
+                    preprocessed_review,
+                    word_counter.pos_words_count,
+                    word_counter.neg_words_count,
+                    advanced,
+                )
                 print_sentiment(sentiment)
 
-                preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+                preference = input(
+                    "\nAre you interested in per word sentiment details? [y/n]: "
+                )
                 if preference.lower() == "y":
                     print_sentiment_details(sentiment_details)
 
                 if advanced_analysis.lower() != "y":
-                    advanced_option = input("\nWould you like to perform advanced analysis after all? [y/n]: ")
+                    advanced_option = input(
+                        "\nWould you like to perform advanced analysis after all? [y/n]: "
+                    )
                     if advanced_option.lower() == "y":
-                        advanced_sentiment, advanced_sentiment_details = compute_sentiment(
-                            advanced_preprocess_review(review), word_counter.pos_words_count,
-                            word_counter.neg_words_count, True
+                        advanced_sentiment, advanced_sentiment_details = (
+                            compute_sentiment(
+                                advanced_preprocess_review(review),
+                                word_counter.pos_words_count,
+                                word_counter.neg_words_count,
+                                True,
+                            )
                         )
                         print_sentiment(advanced_sentiment)
-                        advanced_preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+                        advanced_preference = input(
+                            "\nAre you interested in per word sentiment details? [y/n]: "
+                        )
                         if advanced_preference.lower() == "y":
                             print_sentiment_details(advanced_sentiment_details)
-            # Wait for Enter to return to the main menu
             input("\nPress Enter to return to the main menu... ")
 
         elif choice == "3":
@@ -339,6 +412,7 @@ def main():
 
         else:
             print("Invalid choice. Please enter a valid option (1/2/3/4).")
+
 
 if __name__ == "__main__":
     main()
