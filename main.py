@@ -151,7 +151,7 @@ def save_review(review: str, review_files_path: str) -> None:
     ) as file:
         file.write(review)
     print("\n--------------------------------------")
-    print(f"Review saved to {next_file}")
+    print(f"Review saved to {next_file}.")
     print("--------------------------------------")
     return None
 
@@ -288,7 +288,8 @@ def enter_or_read_review_for_analysis(
     if is_enter_review:
         review = input("\nProvide your review: ")
         if len(review) == 0:
-            print("No review for analysis")
+            print("\nNo review for analysis")
+            input("\nPress Enter to return to the main menu... ")
             return
     else:
         review = read_review_file(REVIEW_FILES_PATH)
