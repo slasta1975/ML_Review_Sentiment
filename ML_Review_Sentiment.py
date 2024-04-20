@@ -1,13 +1,14 @@
 import glob
 import os
+from typing import List, Tuple, Dict
 
-POS_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
-NEG_FILES_FEED = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
-REVIEW_FILES_PATH = os.path.dirname(os.path.abspath(__file__))
-PUNCTUATIONS = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
+POS_FILES_FEED: str = r"..\..\PP\M03\data\aclImdb\train\pos\*.txt"
+NEG_FILES_FEED: str = r"..\..\PP\M03\data\aclImdb\train\neg\*.txt"
+REVIEW_FILES_PATH: str = os.path.dirname(os.path.abspath(__file__))
+PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
 
 
-def preprocess_review(review):
+def preprocess_review(review: str) -> List[str]:
     """
     Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
     """
@@ -16,7 +17,7 @@ def preprocess_review(review):
     return review.lower().split()
 
 
-def advanced_preprocess_review(review):
+def advanced_preprocess_review(review: str) -> List[str]:
     """
     Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
     Adds a "not_" prefix to words following a negation in the sentence and cancels negation when detects so.
@@ -46,10 +47,10 @@ def advanced_preprocess_review(review):
 class WordCounter:
 
     def __init__(self):
-        self.pos_words_count = {}
-        self.neg_words_count = {}
+        self.pos_words_count: Dict[str, int] = {}
+        self.neg_words_count: Dict[str, int] = {}
 
-    def count_words(self, path_pattern):
+    def count_words(self, path_pattern: str) -> None:
         """
         Calculates number of how many times a word has been used in training positive and negative reviews kept in POS_FILES_FEED and NEG_FILES_FEED locations.
         Updates dictionaries with review words and usage counters.
@@ -66,20 +67,9 @@ class WordCounter:
                     self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
 
 
-def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
+def compute_sentiment(review: List[str], pos_words_count: Dict[str, int], neg_words_count: Dict[str, int], advanced: bool = False) -> Tuple[float, List[Tuple[str, float]]]:
     """
     Compute the sentiment of a review based on positive and negative word counts.
-
-    Args:
-        review (list): A list of words in the review.
-        pos_words_count (dict): A dictionary containing the count of positive words.
-        neg_words_count (dict): A dictionary containing the count of negative words.
-        advanced (bool, optional): Whether to perform advanced sentiment analysis. 
-            Defaults to False.
-
-    Returns:
-        tuple: A tuple containing the average sentiment score of the review and 
-            a list of tuples with each word in the review along with its sentiment score.
     """
     cumulative_sentiment = 0
     sentiment_details = []
@@ -104,7 +94,7 @@ def compute_sentiment(review, pos_words_count, neg_words_count, advanced=False):
     return average_sentiment, sentiment_details
 
 
-def print_sentiment(sentiment):
+def print_sentiment(sentiment: float) -> None:
     rounded_sentiment = round(sentiment, 2)
     if rounded_sentiment > 0:
         verdict = "positive"
@@ -117,7 +107,7 @@ def print_sentiment(sentiment):
     print("------------------------------------------")
 
 
-def print_sentiment_details(sentiment_details):
+def print_sentiment_details(sentiment_details: List[Tuple[str, float]]) -> None:
     print("\n---------------------------")
     print("Per word sentiment details:")
     print("---------------------------")
@@ -126,7 +116,7 @@ def print_sentiment_details(sentiment_details):
     print("---------------------------")
 
 
-def get_next_review_file(review_files_path):
+def get_next_review_file(review_files_path: str) -> str:
     """
     Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory, where X is the smallest available integer starting with 1.
     """
@@ -146,7 +136,7 @@ def get_next_review_file(review_files_path):
         return None
 
 
-def save_review(review, review_files_path):
+def save_review(review: str, review_files_path: str) -> None:
     """
     Saves the provided review in the REVIEW_FILES_PATH location using the ReviewX.txt pattern,
     where X is the smallest available integer starting with 1 if there is no review file yet.
@@ -164,7 +154,7 @@ def save_review(review, review_files_path):
     return None
 
 
-def list_review_files(review_files_path):
+def list_review_files(review_files_path: str) -> List[str]:
     """
     Lists the review files available in the provided path along with their first sentences.
     """
@@ -200,7 +190,7 @@ def list_review_files(review_files_path):
         return None
 
 
-def read_review_file(review_files_path):
+def read_review_file(review_files_path: str) -> str:
     """
     Reads a review file from the provided path.
     """
@@ -242,7 +232,7 @@ def read_review_file(review_files_path):
         break
 
 
-def delete_review_file(review_files_path):
+def delete_review_file(review_files_path: str) -> None:
     """
     Deletes a review file from the provided path.
     """
@@ -282,7 +272,7 @@ def delete_review_file(review_files_path):
         return None
 
 
-def main():
+def main() -> None:
 
     word_counter = WordCounter()
     word_counter.count_words(POS_FILES_FEED)
