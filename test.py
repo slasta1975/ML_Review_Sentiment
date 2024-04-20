@@ -1,7 +1,7 @@
 import pytest
 import os
 import tempfile
-from ML_Review_Sentiment import *
+from main import *
 
 
 @pytest.fixture

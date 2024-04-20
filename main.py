@@ -297,6 +297,16 @@ def enter_or_read_review_for_analysis(word_counter: WordCounter, is_enter_review
         print_sentiment_details(sentiment_details)
     else:
         return
+    
+    if not advanced:
+        advanced_choice = input("\nDo you want to perform advanced sentiment analysis after all? [y/n]: ")
+        if advanced_choice.lower() == "y":
+            preprocessed_review = advanced_preprocess_review(review)
+            advanced_sentiment, advanced_sentiment_details = compute_sentiment(preprocessed_review, word_counter.pos_words_count, word_counter.neg_words_count, True)
+            print_sentiment(advanced_sentiment)
+            preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+            if preference.lower() == "y":
+                print_sentiment_details(advanced_sentiment_details)
 
     if  is_enter_review:
         save_review_choice = input("\nDo you want to save this review? [y/n]: ")
