@@ -31,6 +31,11 @@ An advanced mode analysis is also possible which can detect negation in the anal
 
 2. Follow the on-screen instructions to enter your review, read a review file, delete a review file, or exit the program.
 
+## Dependencies
+
+Python 3.x
+Required Python packages: glob, os, typing
+
 ## Acknowledgment
 
-This project uses the [Large Movie Review Dataset v1.0](http://ai.stanford.edu/~amaas/data/sentiment/)
+This project uses the [Large Movie Review Dataset v1.0](http://ai.stanford.edu/~amaas/data/sentiment/). This project is licensed under the MIT License.
