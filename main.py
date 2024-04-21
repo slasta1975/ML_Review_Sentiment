@@ -365,10 +365,10 @@ def main() -> None:
         choice = input("Enter your choice (1/2/3/4): ")
 
         if choice == "1":
-            enter_or_read_review_for_analysis(word_counter, True)
+            enter_or_read_review_for_analysis(word_counter, is_enter_review=True)
 
         elif choice == "2":
-            enter_or_read_review_for_analysis(word_counter, False)
+            enter_or_read_review_for_analysis(word_counter, is_enter_review=False)
 
         elif choice == "3":
             delete_review_file(REVIEW_FILES_PATH)
