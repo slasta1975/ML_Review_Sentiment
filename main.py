@@ -5,7 +5,7 @@ from typing import List, Tuple, Dict
 POS_FILES_FEED: str = r"train\pos\*.txt"
 NEG_FILES_FEED: str = r"train\neg\*.txt"
 REVIEW_FILES_PATH: str = r"reviews"
-PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
+PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", " - ", '"', "<br />"]
 
 
 class WordCounter:
@@ -139,7 +139,7 @@ def list_review_files(review_files_path: str) -> List[str]:
                 content = file.read()
                 sentences = content.split(".")
                 if len(sentences) > 1:
-                    first_sentence = sentences[0] + ("..." if sentences[0] else "")
+                    first_sentence = sentences[0] + ("..." if sentences[1] else "")
                 else:
                     first_sentence = content.strip()
                 print(f"{i}. {file_name} - {first_sentence}")
