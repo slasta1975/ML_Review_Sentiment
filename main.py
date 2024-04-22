@@ -120,42 +120,6 @@ def print_sentiment_details(sentiment_details: List[Tuple[str, float]]) -> None:
     print("---------------------------")
 
 
-def get_next_review_file(review_files_path: str) -> str:
-    """
-    Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory, where X is the smallest available integer starting with 1.
-    """
-    try:
-        files = os.listdir(review_files_path)
-        existing_numbers = [
-            int(file.split("Review")[1].split(".")[0])
-            for file in files
-            if file.startswith("Review")
-        ]
-        next_number = 1
-        while next_number in existing_numbers:
-            next_number += 1
-        return f"Review{next_number}.txt"
-    except FileNotFoundError:
-        print("Directory not found. Please make sure the directory exists.")
-        return None
-
-
-def save_review(review: str, review_files_path: str) -> None:
-    """
-    Saves the provided review in the REVIEW_FILES_PATH location using the ReviewX.txt pattern,
-    where X is the smallest available integer starting with 1 if there is no review file yet.
-    """
-    next_file = get_next_review_file(review_files_path)
-    with open(
-        os.path.join(review_files_path, next_file), "w", encoding="utf-8"
-    ) as file:
-        file.write(review)
-    print("\n--------------------------------------")
-    print(f"Review saved to {next_file}.")
-    print("--------------------------------------")
-    return None
-
-
 def list_review_files(review_files_path: str) -> List[str]:
     """
     Lists the review files available in the provided path along with their first sentences.
@@ -238,6 +202,105 @@ def read_review_file(review_files_path: str) -> str:
         break
 
 
+def enter_or_read_review_for_analysis(
+    word_counter: WordCounter, is_enter_review: bool
+) -> None:
+    """
+    Prompts the user to enter a review for analysis or reads a review file for analysis based on the is_enter_review parameter.
+    """
+    if is_enter_review:
+        review = input("\nProvide your review: ")
+        if len(review) == 0:
+            print("\nNo review for analysis")
+            input("\nPress Enter to return to the main menu... ")
+            return
+    else:
+        review = read_review_file(REVIEW_FILES_PATH)
+        if not review:
+            return
+
+    advanced_analysis = input(
+        "\nDo you want to perform advanced sentiment analysis? [y/n]: "
+    )
+    advanced = advanced_analysis.lower() == "y"
+    preprocessed_review = (
+        advanced_preprocess_review(review) if advanced else preprocess_review(review)
+    )
+
+    sentiment, sentiment_details = compute_sentiment(
+        preprocessed_review,
+        word_counter.pos_words_count,
+        word_counter.neg_words_count,
+        advanced,
+    )
+    print_sentiment(sentiment)
+
+    preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
+    if preference.lower() == "y":
+        print_sentiment_details(sentiment_details)
+
+    if not advanced:
+        advanced_choice = input(
+            "\nDo you want to perform advanced sentiment analysis after all? [y/n]: "
+        )
+        if advanced_choice.lower() == "y":
+            preprocessed_review = advanced_preprocess_review(review)
+            advanced_sentiment, advanced_sentiment_details = compute_sentiment(
+                preprocessed_review,
+                word_counter.pos_words_count,
+                word_counter.neg_words_count,
+                True,
+            )
+            print_sentiment(advanced_sentiment)
+            preference = input(
+                "\nAre you interested in per word sentiment details? [y/n]: "
+            )
+            if preference.lower() == "y":
+                print_sentiment_details(advanced_sentiment_details)
+
+    if is_enter_review:
+        save_review_choice = input("\nDo you want to save this review? [y/n]: ")
+        if save_review_choice.lower() == "y":
+            save_review(review, REVIEW_FILES_PATH)
+    input("\nPress Enter to return to the main menu... ")
+
+
+def get_next_review_file(review_files_path: str) -> str:
+    """
+    Returns the name of the next available review file (ReviewX.txt) in the REVIEW_FILES_PATH directory, where X is the smallest available integer starting with 1.
+    """
+    try:
+        files = os.listdir(review_files_path)
+        existing_numbers = [
+            int(file.split("Review")[1].split(".")[0])
+            for file in files
+            if file.startswith("Review")
+        ]
+        next_number = 1
+        while next_number in existing_numbers:
+            next_number += 1
+        return f"Review{next_number}.txt"
+    except FileNotFoundError:
+        print("Directory not found. Please make sure the directory exists.")
+        return None
+
+
+def save_review(review: str, review_files_path: str) -> None:
+    """
+    Saves the provided review in the REVIEW_FILES_PATH location using the ReviewX.txt pattern,
+    where X is the smallest available integer starting with 1 if there is no review file yet.
+    """
+    next_file = get_next_review_file(review_files_path)
+    with open(
+        os.path.join(review_files_path, next_file), "w", encoding="utf-8"
+    ) as file:
+        file.write(review)
+    print("\n--------------------------------------")
+    print(f"Review saved to {next_file}.")
+    print("--------------------------------------")
+    return None
+
+
 def delete_review_file(review_files_path: str) -> None:
     """
     Deletes a review file from the provided path.
@@ -278,71 +341,6 @@ def delete_review_file(review_files_path: str) -> None:
         print("--------------------------------------")
         input("\nPress Enter to return to the main menu... ")
         return None
-
-
-def enter_or_read_review_for_analysis(
-    word_counter: WordCounter, is_enter_review: bool
-) -> None:
-    """
-    Prompts the user to enter a review for analysis or reads a review file for analysis based on the is_enter_review parameter.
-    """
-    if is_enter_review:
-        review = input("\nProvide your review: ")
-        if len(review) == 0:
-            print("\nNo review for analysis")
-            input("\nPress Enter to return to the main menu... ")
-            return
-    else:
-        review = read_review_file(REVIEW_FILES_PATH)
-        if not review:
-            return
-
-    advanced_analysis = input(
-        "\nDo you want to perform advanced sentiment analysis? [y/n]: "
-    )
-    advanced = advanced_analysis.lower() == "y"
-    preprocessed_review = (
-        advanced_preprocess_review(review) if advanced else preprocess_review(review)
-    )
-
-    sentiment, sentiment_details = compute_sentiment(
-        preprocessed_review,
-        word_counter.pos_words_count,
-        word_counter.neg_words_count,
-        advanced,
-    )
-    print_sentiment(sentiment)
-
-    preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
-    if preference.lower() == "y":
-        print_sentiment_details(sentiment_details)
-    else:
-        return
-
-    if not advanced:
-        advanced_choice = input(
-            "\nDo you want to perform advanced sentiment analysis after all? [y/n]: "
-        )
-        if advanced_choice.lower() == "y":
-            preprocessed_review = advanced_preprocess_review(review)
-            advanced_sentiment, advanced_sentiment_details = compute_sentiment(
-                preprocessed_review,
-                word_counter.pos_words_count,
-                word_counter.neg_words_count,
-                True,
-            )
-            print_sentiment(advanced_sentiment)
-            preference = input(
-                "\nAre you interested in per word sentiment details? [y/n]: "
-            )
-            if preference.lower() == "y":
-                print_sentiment_details(advanced_sentiment_details)
-
-    if is_enter_review:
-        save_review_choice = input("\nDo you want to save this review? [y/n]: ")
-        if save_review_choice.lower() == "y":
-            save_review(review, REVIEW_FILES_PATH)
-    input("\nPress Enter to return to the main menu... ")
 
 
 def main() -> None:
