@@ -155,51 +155,52 @@ def list_review_files(review_files_path: str) -> List[str]:
 
         print("\nDirectory not found. Please make sure the directory exists.\n")
         return None
+    
+
+def get_user_choice(files: List[str], prompt: str) -> int:
+    """
+    Prompts the user to enter a choice and validates the input.
+    Returns a valid choice as an integer or None if the user chooses to exit.
+    """
+    print(prompt, end="")
+    while True:
+        choice = input().strip()
+        if choice == "":
+            print("\nReturning to the main menu...")
+            return None
+
+        try:
+            choice_int = int(choice)
+            if 1 <= choice_int <= len(files):
+                return choice_int
+            else:
+                print("\nInvalid choice. Please enter a number within the range:", end="")
+        except ValueError:
+            print("\nInvalid input. Please enter a valid number:", end="")
 
 
 def read_review_file(review_files_path: str) -> str:
     """
-    Reads a review file from the provided path and returns a review content.
+    Reads a review file from the provided path and returns its content.
     """
     files = list_review_files(review_files_path)
     if not files:
         return None
 
-    print(
-        "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ",
-        end="",
-    )
-    while True:
-        choice = input()
-        if choice.strip() == "":
-            print("\nReturning to the main menu...")
-            return None
+    choice = get_user_choice(files, "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ")
+    if choice is None:
+        return None
 
-        try:
-            choice = int(choice)
-            if choice < 1 or choice > len(files):
-                print(
-                    "\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ",
-                    end="",
-                )
-                continue
-        except ValueError:
-            print(
-                "\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ",
-                end="",
-            )
-            continue
+    chosen_file = os.path.join(review_files_path, files[choice - 1])
+    with open(chosen_file, "r", encoding="utf-8") as stream:
+        review_content = stream.read()
 
-        chosen_file = os.path.join(review_files_path, files[choice - 1])
-        with open(chosen_file, "r", encoding="utf-8") as stream:
-            review_content = stream.read()
-            print("\n--------------------------------------")
-            print("Review file content:")
-            print("--------------------------------------")
-            print(review_content)
-            print("--------------------------------------")
-            return review_content
-        break
+    print("\n--------------------------------------")
+    print("Review file content:")
+    print("--------------------------------------")
+    print(review_content)
+    print("--------------------------------------")
+    return review_content
 
 
 def enter_or_read_review_for_analysis(
@@ -293,8 +294,8 @@ def save_review(review: str, review_files_path: str) -> None:
     next_file = get_next_review_file(review_files_path)
     with open(
         os.path.join(review_files_path, next_file), "w", encoding="utf-8"
-    ) as file:
-        file.write(review)
+    ) as stream:
+        stream.write(review)
     print("\n--------------------------------------")
     print(f"Review saved to {next_file}.")
     print("--------------------------------------")
@@ -309,38 +310,17 @@ def delete_review_file(review_files_path: str) -> None:
     if not files:
         return None
 
-    print(
-        "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ",
-        end="",
-    )
-    while True:
-        choice = input()
-        if choice.strip() == "":
-            print("\nReturning to the main menu...")
-            return None
-
-        try:
-            choice = int(choice)
-            if choice < 1 or choice > len(files):
-                print(
-                    "\nInvalid choice. Please enter a number within the range (press Enter to return to the main menu): ",
-                    end="",
-                )
-                continue
-        except ValueError:
-            print(
-                "\nInvalid input. Please enter a valid number (press Enter to return to the main menu): ",
-                end="",
-            )
-            continue
-
-        chosen_file = os.path.join(review_files_path, files[choice - 1])
-        os.remove(chosen_file)
-        print("\n--------------------------------------")
-        print(f"Review file '{files[choice - 1]}' has been deleted.")
-        print("--------------------------------------")
-        input("\nPress Enter to return to the main menu... ")
+    choice = get_user_choice(files, "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ")
+    if choice is None:
         return None
+
+    chosen_file = os.path.join(review_files_path, files[choice - 1])
+    os.remove(chosen_file)
+
+    print("\n--------------------------------------")
+    print(f"Review file '{files[choice - 1]}' has been deleted.")
+    print("--------------------------------------")
+    input("\nPress Enter to return to the main menu...")
 
 
 def main() -> None:
