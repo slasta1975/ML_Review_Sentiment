@@ -8,6 +8,28 @@ REVIEW_FILES_PATH: str = r"reviews"
 PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
 
 
+class WordCounter:
+    def __init__(self):
+        self.pos_words_count: Dict[str, int] = {}
+        self.neg_words_count: Dict[str, int] = {}
+
+    def count_words(self, path_pattern: str, is_positive: bool) -> None:
+        """
+        Calculates the number of times a word has been used in training positive and negative reviews.
+        Updates dictionaries with review words and usage counters.
+        """
+        files = glob.glob(path_pattern)
+        for file in files:
+            with open(file, encoding="utf-8") as stream:
+                content = stream.read()
+            preprocessed_review = preprocess_review(content)
+            for word in set(preprocessed_review):
+                if is_positive:
+                    self.pos_words_count[word] = self.pos_words_count.get(word, 0) + 1
+                else:
+                    self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
+
+
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
     Returns a list of lower-case words from the provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
@@ -15,7 +37,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
     for punctuation in PUNCTUATIONS:
         review = review.replace(punctuation, " ")
-
+    
     words = review.lower().split()
 
     if not advanced:
@@ -26,11 +48,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     for word in words:
         if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
             negate = True
-        elif (
-            word == "far"
-            and words.index(word) + 1 < len(words)
-            and words[words.index(word) + 1] == "from"
-        ):
+        elif word == "far" and words.index(word) + 1 < len(words) and words[words.index(word) + 1] == "from":
             negate = True
         elif negate and word == "only":
             negate = False
@@ -41,28 +59,6 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
         advanced_words.append(word)
 
     return advanced_words
-
-
-class WordCounter:
-    def __init__(self):
-        self.pos_words_count: Dict[str, int] = {}
-        self.neg_words_count: Dict[str, int] = {}
-
-    def count_words(self, path_pattern: str) -> None:
-        """
-        Calculates number of how many times a word has been used in training positive and negative reviews kept in POS_FILES_FEED and NEG_FILES_FEED locations.
-        Updates dictionaries with review words and usage counters.
-        """
-        files = glob.glob(path_pattern)
-        for file in files:
-            with open(file, encoding="utf-8") as stream:
-                content = stream.read()
-            preprocessed_review = preprocess_review(content)
-            for word in set(preprocessed_review):
-                if path_pattern == POS_FILES_FEED:
-                    self.pos_words_count[word] = self.pos_words_count.get(word, 0) + 1
-                else:
-                    self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
 
 
 def compute_sentiment(
@@ -153,7 +149,7 @@ def list_review_files(review_files_path: str) -> List[str]:
 
         print("\nDirectory not found. Please make sure the directory exists.\n")
         return None
-
+    
 
 def get_user_choice(files: List[str], prompt: str) -> int:
     """
@@ -172,9 +168,7 @@ def get_user_choice(files: List[str], prompt: str) -> int:
             if 1 <= choice_int <= len(files):
                 return choice_int
             else:
-                print(
-                    "\nInvalid choice. Please enter a number within the range:", end=""
-                )
+                print("\nInvalid choice. Please enter a number within the range:", end="")
         except ValueError:
             print("\nInvalid input. Please enter a valid number:", end="")
 
@@ -187,10 +181,7 @@ def read_review_file(review_files_path: str) -> str:
     if not files:
         return None
 
-    choice = get_user_choice(
-        files,
-        "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ",
-    )
+    choice = get_user_choice(files, "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ")
     if choice is None:
         return None
 
@@ -227,6 +218,7 @@ def enter_or_read_review_for_analysis(
         "\nDo you want to perform advanced sentiment analysis? [y/n]: "
     )
     advanced = advanced_analysis.lower() == "y"
+
 
     preprocessed_review = preprocess_review(review, advanced=advanced)
 
@@ -308,10 +300,7 @@ def delete_review_file(review_files_path: str) -> None:
     if not files:
         return None
 
-    choice = get_user_choice(
-        files,
-        "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ",
-    )
+    choice = get_user_choice(files, "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ")
     if choice is None:
         return None
 
@@ -327,8 +316,8 @@ def delete_review_file(review_files_path: str) -> None:
 def main() -> None:
 
     word_counter = WordCounter()
-    word_counter.count_words(POS_FILES_FEED)
-    word_counter.count_words(NEG_FILES_FEED)
+    word_counter.count_words(POS_FILES_FEED, is_positive=True)
+    word_counter.count_words(NEG_FILES_FEED, is_positive=False) 
 
     while True:
         print("\n----------")
