@@ -165,7 +165,8 @@ def list_review_files(review_files_path: str) -> List[str]:
             file for file in os.listdir(review_files_path) if file.endswith(".txt")
         ]
         if not files:
-            print("\nNo review files found.\n")
+            print("\nNo review files found.")
+            input("\nPress Enter to return to the main menu... ")
             return None
         sorted_files = sorted(
             files, key=lambda x: int(x.split("Review")[1].split(".")[0])
@@ -194,14 +195,14 @@ def list_review_files(review_files_path: str) -> List[str]:
 
 def read_review_file(review_files_path: str) -> str:
     """
-    Reads a review file from the provided path.
+    Reads a review file from the provided path and returns a review content.
     """
     files = list_review_files(review_files_path)
     if not files:
         return None
 
     print(
-        "\nEnter the number of the review file you want to load (press Enter to return to the main menu): ",
+        "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ",
         end="",
     )
     while True:
@@ -226,8 +227,8 @@ def read_review_file(review_files_path: str) -> str:
             continue
 
         chosen_file = os.path.join(review_files_path, files[choice - 1])
-        with open(chosen_file, "r", encoding="utf-8") as file:
-            review_content = file.read()
+        with open(chosen_file, "r", encoding="utf-8") as stream:
+            review_content = stream.read()
             print("\n--------------------------------------")
             print("Review file content:")
             print("--------------------------------------")
@@ -299,12 +300,10 @@ def enter_or_read_review_for_analysis(
     advanced_analysis = input(
         "\nDo you want to perform advanced sentiment analysis? [y/n]: "
     )
-    preprocessed_review = (
-        advanced_preprocess_review(review)
-        if advanced_analysis.lower() == "y"
-        else preprocess_review(review)
-    )
     advanced = advanced_analysis.lower() == "y"
+    preprocessed_review = (
+        advanced_preprocess_review(review) if advanced else preprocess_review(review)
+    )
 
     sentiment, sentiment_details = compute_sentiment(
         preprocessed_review,
@@ -378,7 +377,7 @@ def main() -> None:
             break
 
         else:
-            print("Invalid choice. Please enter a valid option (1/2/3/4).")
+            print("\nInvalid choice. Please enter a valid option (1/2/3/4).")
 
 
 if __name__ == "__main__":
