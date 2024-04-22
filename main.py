@@ -68,8 +68,7 @@ class WordCounter:
 
 def compute_sentiment(
     review: List[str],
-    pos_words_count: Dict[str, int],
-    neg_words_count: Dict[str, int],
+    word_counter: WordCounter,
     advanced: bool = False,
 ) -> Tuple[float, List[Tuple[str, float]]]:
     """
@@ -82,8 +81,8 @@ def compute_sentiment(
             original_word = word[4:]  # Remove "not_" prefix
         else:
             original_word = word
-        pos_counter = pos_words_count.get(original_word, 0)
-        neg_counter = neg_words_count.get(original_word, 0)
+        pos_counter = word_counter.pos_words_count.get(original_word, 0)
+        neg_counter = word_counter.neg_words_count.get(original_word, 0)
         total = pos_counter + neg_counter
         if total == 0:
             word_sentiment = 0
@@ -230,8 +229,7 @@ def enter_or_read_review_for_analysis(
 
     sentiment, sentiment_details = compute_sentiment(
         preprocessed_review,
-        word_counter.pos_words_count,
-        word_counter.neg_words_count,
+        word_counter,
         advanced,
     )
     print_sentiment(sentiment)
@@ -248,8 +246,7 @@ def enter_or_read_review_for_analysis(
             preprocessed_review = advanced_preprocess_review(review)
             advanced_sentiment, advanced_sentiment_details = compute_sentiment(
                 preprocessed_review,
-                word_counter.pos_words_count,
-                word_counter.neg_words_count,
+                word_counter,
                 True,
             )
             print_sentiment(advanced_sentiment)
@@ -263,7 +260,7 @@ def enter_or_read_review_for_analysis(
         save_review_choice = input("\nDo you want to save this review? [y/n]: ")
         if save_review_choice.lower() == "y":
             save_review(review, REVIEW_FILES_PATH)
-            input("\nPress Enter to return to the main menu... ")
+    input("\nPress Enter to return to the main menu... ")
 
 
 def get_next_review_file(review_files_path: str) -> str:

@@ -31,10 +31,9 @@ def test_get_next_review_file(temp_review_files_path):
     assert next_review_file == expected_result
 
 def test_compute_sentiment():
-    pos_words_count = {"good": 5, "great": 3}
-    neg_words_count = {"bad": 2, "terrible": 4}
+    word_counter = [{"good": 5, "great": 3}, {"bad": 2, "terrible": 4}]
     review = ["good", "movie"]
-    sentiment, sentiment_details = compute_sentiment(review, pos_words_count, neg_words_count)
+    sentiment, sentiment_details = compute_sentiment(review, word_counter)
     assert round(sentiment, 2) == 0.5
     expected_sentiment_details = [("good", 1.0), ("movie", 0.0)]
     assert sentiment_details == expected_sentiment_details
