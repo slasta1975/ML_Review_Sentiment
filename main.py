@@ -262,7 +262,7 @@ def enter_or_read_review_for_analysis(
         save_review_choice = input("\nDo you want to save this review? [y/n]: ")
         if save_review_choice.lower() == "y":
             save_review(review, REVIEW_FILES_PATH)
-        input("\nPress Enter to return to the main menu... ")
+            input("\nPress Enter to return to the main menu... ")
 
 
 def get_next_review_file(review_files_path: str) -> str:
