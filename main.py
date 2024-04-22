@@ -8,40 +8,39 @@ REVIEW_FILES_PATH: str = r"reviews"
 PUNCTUATIONS: List[str] = [".", ",", "?", "!", ":", ";", "-", '"', "<br />"]
 
 
-def preprocess_review(review: str) -> List[str]:
+def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
-    Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
+    Returns a list of lower-case words from the provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
+    If 'advanced' is True, it adds a "not_" prefix to words following negations and processes negation-related words.
     """
     for punctuation in PUNCTUATIONS:
         review = review.replace(punctuation, " ")
-    return review.lower().split()
 
+    words = review.lower().split()
 
-def advanced_preprocess_review(review: str) -> List[str]:
-    """
-    Returns a list of lower case words from provided review without punctuations or special characters defined in 'PUNCTUATIONS'.
-    Adds a "not_" prefix to words following a negation in the sentence and cancels negation when detects so.
-    """
-    sentences = review.split(".")
-    advanced_review = []
-    for sentence in sentences:
-        for punctuation in PUNCTUATIONS:
-            sentence = sentence.replace(punctuation, " ")
-        words = sentence.lower().split()
-        negate = False
-        for word in words:
-            if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
-                negate = True
-            elif word == "far" and "from" in words[words.index(word) + 1]:
-                negate = True
-            elif negate and word == "only":
-                negate = False
-            elif negate and word not in ["but", "however", "nevertheless"]:
-                word = "not_" + word
-            else:
-                negate = False
-            advanced_review.append(word)
-    return advanced_review
+    if not advanced:
+        return words
+
+    advanced_words = []
+    negate = False
+    for word in words:
+        if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
+            negate = True
+        elif (
+            word == "far"
+            and words.index(word) + 1 < len(words)
+            and words[words.index(word) + 1] == "from"
+        ):
+            negate = True
+        elif negate and word == "only":
+            negate = False
+        elif negate and word not in ["but", "however", "nevertheless"]:
+            word = "not_" + word
+        else:
+            negate = False
+        advanced_words.append(word)
+
+    return advanced_words
 
 
 class WordCounter:
@@ -154,7 +153,7 @@ def list_review_files(review_files_path: str) -> List[str]:
 
         print("\nDirectory not found. Please make sure the directory exists.\n")
         return None
-    
+
 
 def get_user_choice(files: List[str], prompt: str) -> int:
     """
@@ -173,7 +172,9 @@ def get_user_choice(files: List[str], prompt: str) -> int:
             if 1 <= choice_int <= len(files):
                 return choice_int
             else:
-                print("\nInvalid choice. Please enter a number within the range:", end="")
+                print(
+                    "\nInvalid choice. Please enter a number within the range:", end=""
+                )
         except ValueError:
             print("\nInvalid input. Please enter a valid number:", end="")
 
@@ -186,7 +187,10 @@ def read_review_file(review_files_path: str) -> str:
     if not files:
         return None
 
-    choice = get_user_choice(files, "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ")
+    choice = get_user_choice(
+        files,
+        "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ",
+    )
     if choice is None:
         return None
 
@@ -223,15 +227,13 @@ def enter_or_read_review_for_analysis(
         "\nDo you want to perform advanced sentiment analysis? [y/n]: "
     )
     advanced = advanced_analysis.lower() == "y"
-    preprocessed_review = (
-        advanced_preprocess_review(review) if advanced else preprocess_review(review)
-    )
+
+    preprocessed_review = preprocess_review(review, advanced=advanced)
 
     sentiment, sentiment_details = compute_sentiment(
-        preprocessed_review,
-        word_counter,
-        advanced,
+        preprocessed_review, word_counter, advanced=advanced
     )
+
     print_sentiment(sentiment)
 
     preference = input("\nAre you interested in per word sentiment details? [y/n]: ")
@@ -243,11 +245,9 @@ def enter_or_read_review_for_analysis(
             "\nDo you want to perform advanced sentiment analysis after all? [y/n]: "
         )
         if advanced_choice.lower() == "y":
-            preprocessed_review = advanced_preprocess_review(review)
+            preprocessed_review = preprocess_review(review, advanced=True)
             advanced_sentiment, advanced_sentiment_details = compute_sentiment(
-                preprocessed_review,
-                word_counter,
-                True,
+                preprocessed_review, word_counter, True
             )
             print_sentiment(advanced_sentiment)
             preference = input(
@@ -260,6 +260,7 @@ def enter_or_read_review_for_analysis(
         save_review_choice = input("\nDo you want to save this review? [y/n]: ")
         if save_review_choice.lower() == "y":
             save_review(review, REVIEW_FILES_PATH)
+
     input("\nPress Enter to return to the main menu... ")
 
 
@@ -307,7 +308,10 @@ def delete_review_file(review_files_path: str) -> None:
     if not files:
         return None
 
-    choice = get_user_choice(files, "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ")
+    choice = get_user_choice(
+        files,
+        "\nEnter the number of the review file you want to delete (press Enter to return to the main menu): ",
+    )
     if choice is None:
         return None
 
