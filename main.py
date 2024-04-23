@@ -17,6 +17,19 @@ PUNCTUATIONS: List[str] = [
     " '",
     "' ",
     '"',
+    "(",
+    ")",
+    "[",
+    "]",
+    "{",
+    "}",
+    "@",
+    "#",
+    "$",
+    "%",
+    "^",
+    "&",
+    "*",
     "<br />",
 ]
 
@@ -35,12 +48,21 @@ class WordCounter:
         for file in files:
             with open(file, encoding="utf-8") as stream:
                 content = stream.read()
-            preprocessed_review = preprocess_review(content)
+            preprocessed_review = remove_punctuations(content).lower().split()
             for word in set(preprocessed_review):
                 if is_positive:
                     self.pos_words_count[word] = self.pos_words_count.get(word, 0) + 1
                 else:
                     self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
+
+
+def remove_punctuations(review: str) -> str:
+    """
+    Removes specified punctuations from a given sentence.
+    """
+    for punctuation in PUNCTUATIONS:
+        review = review.replace(punctuation, " ")
+    return review
 
 
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
@@ -55,10 +77,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
 
     for sentence in sentences:
         sentence = sentence.strip()
-
-        for punctuation in PUNCTUATIONS:
-            sentence = sentence.replace(punctuation, " ")
-
+        sentence = remove_punctuations(sentence)
         words = sentence.lower().split()
 
         if not advanced:
@@ -67,11 +86,12 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
 
         advanced_words = []
         negate = False
+
         for word in words:
             if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
                 negate = True
             elif (
-                word == "far"
+                "far" in word
                 and len(words) > words.index(word) + 1
                 and words[words.index(word) + 1] == "from"
             ):
