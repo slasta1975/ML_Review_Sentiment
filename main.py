@@ -44,8 +44,8 @@ class WordCounter:
 
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
-    Splits the review into sentences using periods as delimiters and returns a list of lower-case words without punctuations.
-    If 'advanced' is True, it adds a "not_" prefix to words following negations and processes negation-related words.
+    Splits the review into sentences using periods as delimiters and returns a list of lower-case words without punctuations listed in PUNCTUATIONS.
+    If 'advanced' is True, it adds a "not_" prefix to words following negations and processes negation-related words within the processed sentence.
     """
     sentences = review.split(".")
 
@@ -147,7 +147,7 @@ def list_review_files(review_files_path: str) -> List[str]:
         ]
         if not files:
             print("\nNo review files found.")
-            input("\nPress Enter to return to the main menu... ")
+            input("\nPress a key to the main menu... ")
             return None
         sorted_files = sorted(
             files, key=lambda x: int(x.split("Review")[1].split(".")[0])
@@ -235,7 +235,7 @@ def enter_or_read_review_for_analysis(
         review = input("\nProvide your review: ")
         if len(review) == 0:
             print("\nNo review for analysis")
-            input("\nPress Enter to return to the main menu... ")
+            input("\nPress a key to return to the main menu... ")
             return
     else:
         review = read_review_file(REVIEW_FILES_PATH)
@@ -280,7 +280,7 @@ def enter_or_read_review_for_analysis(
         if save_review_choice.lower() == "y":
             save_review(review, REVIEW_FILES_PATH)
 
-    input("\nPress Enter to return to the main menu... ")
+    input("\nPress a key to return to the main menu... ")
 
 
 def get_next_review_file(review_files_path: str) -> str:
@@ -340,7 +340,7 @@ def delete_review_file(review_files_path: str) -> None:
     print("\n--------------------------------------")
     print(f"Review file '{files[choice - 1]}' has been deleted.")
     print("--------------------------------------")
-    input("\nPress Enter to return to the main menu...")
+    input("\nPress a key to return to the main menu...")
 
 
 def main() -> None:
