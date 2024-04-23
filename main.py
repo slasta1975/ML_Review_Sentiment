@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 from typing import List, Tuple, Dict
 
 POS_FILES_FEED: str = r"train\pos\*.txt"
@@ -44,32 +45,37 @@ class WordCounter:
 
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
-    Splits the review into sentences using periods as delimiters and returns a list of lower-case words without punctuations listed in PUNCTUATIONS.
+    Splits the review into sentences using a regular expression to account for multiple delimiters.
+    Returns a list of lower-case words without punctuations listed in PUNCTUATIONS.
     If 'advanced' is True, it adds a "not_" prefix to words following negations and processes negation-related words within the processed sentence.
     """
-    sentences = review.split(".")
+    # Split the review into sentences using . ! ? as delimiters
+    sentences = re.split(r'[.!?]', review)  # Split by period, exclamation mark, or question mark
 
     all_words = []
 
     for sentence in sentences:
+        # Remove extra spaces and leading/trailing white spaces from the sentence
+        sentence = sentence.strip()
+
+        # Replace punctuations in the sentence with spaces
         for punctuation in PUNCTUATIONS:
             sentence = sentence.replace(punctuation, " ")
+
+        # Split the sentence into words and convert to lowercase
         words = sentence.lower().split()
 
         if not advanced:
-            all_words.extend(words)
+            all_words.extend(words)  # Add words to all_words
             continue
 
         advanced_words = []
         negate = False
         for word in words:
+            # Handle negation and other complex cases
             if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
                 negate = True
-            elif (
-                word == "far"
-                and words.index(word) + 1 < len(words)
-                and words[words.index(word) + 1] == "from"
-            ):
+            elif word == "far" and len(words) > words.index(word) + 1 and words[words.index(word) + 1] == "from":
                 negate = True
             elif negate and word == "only":
                 negate = False
@@ -77,8 +83,10 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
                 word = "not_" + word
             else:
                 negate = False
-            advanced_words.append(word)
 
+            advanced_words.append(word)  # Add processed word to advanced_words
+
+        # Extend all_words with advanced_words
         all_words.extend(advanced_words)
 
     return all_words
@@ -160,7 +168,7 @@ def list_review_files(review_files_path: str) -> List[str]:
                 os.path.join(review_files_path, file_name), "r", encoding="utf-8"
             ) as file:
                 content = file.read()
-                sentences = content.split(".")
+                sentences = re.split(r'[.!?]', content) 
                 if len(sentences) > 1:
                     first_sentence = sentences[0] + ("..." if sentences[1] else "")
                 else:
