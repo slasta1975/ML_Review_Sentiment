@@ -1,3 +1,7 @@
+"""
+This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. It counts the occurrences of positive and negative words in the reviews to determine their sentiment. Reviews can be manually entered or loaded from saved text files. An advanced mode analysis is also possible which can detect negation in the analysed review and inverse sentiments of affected words thus improving the whole review sentiment analysis.
+"""
+
 import glob
 import os
 import re
@@ -35,6 +39,12 @@ PUNCTUATIONS: List[str] = [
 
 
 class WordCounter:
+    """
+    A class to count word occurrences in a set of text files. It maintains separate
+    dictionaries to store word counts for positive and negative reviews, allowing
+    for sentiment analysis based on these counts.
+    """
+
     def __init__(self):
         self.pos_words_count: Dict[str, int] = {}
         self.neg_words_count: Dict[str, int] = {}
@@ -58,7 +68,7 @@ class WordCounter:
 
 def remove_punctuations(review: str) -> str:
     """
-    Removes specified punctuations from a given sentence.
+    Removes specified punctuations from a given review.
     """
     for punctuation in PUNCTUATIONS:
         review = review.replace(punctuation, " ")
@@ -69,7 +79,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
     Splits the review into sentences using a regular expression to account for multiple delimiters.
     Returns a list of lower-case words without punctuations listed in PUNCTUATIONS.
-    If 'advanced' is True, it adds a "not_" prefix to words following negations and processes negation-related words within the processed sentence.
+    If 'advanced' is True, it adds a "not_" prefix to words following negations unless special cases are detected that cancel negations.
     """
     sentences = re.split(r"[.!?]", review)
 
@@ -88,9 +98,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
         negate = False
 
         for word in words:
-            if word in ["not", "no", "never", "neither", "nor"] or "n't" in word:
-                negate = True
-            elif (
+            if (word in ["not", "no", "never", "neither", "nor"] or "n't" in word) or (
                 "far" in word
                 and len(words) > words.index(word) + 1
                 and words[words.index(word) + 1] == "from"
