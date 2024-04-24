@@ -2,77 +2,17 @@
 This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. It counts the occurrences of positive and negative words in the reviews to determine their sentiment. Reviews can be manually entered or loaded from saved text files. An advanced mode analysis is also possible which can detect negation in the analysed review and inverse sentiments of affected words thus improving the whole review sentiment analysis.
 """
 
-import glob
 import os
 import re
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
-POS_FILES_FEED: str = r"train\pos\*.txt"
-NEG_FILES_FEED: str = r"train\neg\*.txt"
-REVIEW_FILES_PATH: str = r"reviews"
-PUNCTUATIONS: List[str] = [
-    ".",
-    ",",
-    "?",
-    "!",
-    ":",
-    ";",
-    " - ",
-    " '",
-    "' ",
-    '"',
-    "(",
-    ")",
-    "[",
-    "]",
-    "{",
-    "}",
-    "@",
-    "#",
-    "$",
-    "%",
-    "^",
-    "&",
-    "*",
-    "<br />",
-]
+from word_counter import WordCounter, remove_punctuations
+
+POS_FILES_FEED = r"train\pos\*.txt"
+NEG_FILES_FEED = r"train\neg\*.txt"
+REVIEW_FILES_PATH = r"reviews"
 
 
-class WordCounter:
-    """
-    A class to count word occurrences in a set of text files. It maintains separate
-    dictionaries to store word counts for positive and negative reviews, allowing
-    for sentiment analysis based on these counts.
-    """
-
-    def __init__(self):
-        self.pos_words_count: Dict[str, int] = {}
-        self.neg_words_count: Dict[str, int] = {}
-
-    def count_words(self, path_pattern: str, is_positive: bool) -> None:
-        """
-        Calculates the number of times a word has been used in training positive and negative reviews.
-        Updates dictionaries with review words and usage counters.
-        """
-        files = glob.glob(path_pattern)
-        for file in files:
-            with open(file, encoding="utf-8") as stream:
-                content = stream.read()
-            preprocessed_review = remove_punctuations(content).lower().split()
-            for word in set(preprocessed_review):
-                if is_positive:
-                    self.pos_words_count[word] = self.pos_words_count.get(word, 0) + 1
-                else:
-                    self.neg_words_count[word] = self.neg_words_count.get(word, 0) + 1
-
-
-def remove_punctuations(review: str) -> str:
-    """
-    Removes specified punctuations from a given review.
-    """
-    for punctuation in PUNCTUATIONS:
-        review = review.replace(punctuation, " ")
-    return review
 
 
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
