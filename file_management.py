@@ -3,6 +3,8 @@ import os
 import re
 from typing import List
 
+REVIEW_FILES_PATH = r"reviews"
+
 
 def list_review_files(review_files_path: str) -> List[str]:
     """
@@ -95,11 +97,11 @@ def save_review(review: str, review_files_path: str) -> None:
     print(f"Review saved to {file_name}.")
 
 
-def delete_review_file(review_files_path: str) -> None:
+def delete_review_file() -> None:
     """
     Deletes a review file from the provided path.
     """
-    files = list_review_files(review_files_path)
+    files = list_review_files(REVIEW_FILES_PATH)
 
     if not files:
         return None
@@ -112,7 +114,7 @@ def delete_review_file(review_files_path: str) -> None:
     if choice is None:
         return None
 
-    chosen_file = os.path.join(review_files_path, files[choice - 1])
+    chosen_file = os.path.join(REVIEW_FILES_PATH, files[choice - 1])
     os.remove(chosen_file)
 
     print(f"Review file '{files[choice - 1]}' has been deleted.")
