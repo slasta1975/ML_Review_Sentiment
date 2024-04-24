@@ -3,12 +3,12 @@ This Python project performs sentiment analysis on movie reviews using a basic b
 """
 
 from word_counter import WordCounter
-from  file_management  import delete_review_file
+from file_management import delete_review_file
 from review_handling import enter_or_read_review_for_analysis
+from menu_handling import display_menu
 
 POS_FILES_FEED = r"train\pos\*.txt"
 NEG_FILES_FEED = r"train\neg\*.txt"
-
 
 def main() -> None:
     """
@@ -19,16 +19,7 @@ def main() -> None:
     word_counter.count_words(NEG_FILES_FEED, is_positive=False)
 
     while True:
-        print("\n----------")
-        print("Main Menu:")
-        print("----------")
-        print("1. Enter your review for analysis")
-        print("2. Read a review file for analysis")
-        print("3. Delete a review file")
-        print("4. Exit")
-        print("----------")
-
-        choice = input("Enter your choice (1/2/3/4): ")
+        choice = display_menu()
 
         if choice == "1":
             enter_or_read_review_for_analysis(word_counter, is_enter_review=True)
