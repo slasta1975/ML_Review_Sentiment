@@ -71,14 +71,3 @@ def enter_or_read_review_for_analysis(
     sentiment, sentiment_details = compute_sentiment(
         preprocessed_review, word_counter, advanced=advanced
     )
-
-    print_sentiment(sentiment)
-
-    if input("\nAre you interested in per-word sentiment details? [y/n]: ").lower() == "y":
-        print_sentiment_details(sentiment_details)
-
-    if is_enter_review:
-        if input("\nDo you want to save this review? [y/n]: ").lower() == "y":
-            save_review(review, "reviews")
-
-    input("\nPress a key to return to the main menu...")
