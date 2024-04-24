@@ -104,7 +104,7 @@ def preprocess_review(review: str, advanced: bool = False) -> List[str]:
                 and words[words.index(word) + 1] == "from"
             ):
                 negate = True
-            elif negate and word == "only":
+            elif word == "only" and words[words.index(word) - 1] == "not":
                 negate = False
             elif negate and word not in ["but", "however", "nevertheless"]:
                 word = "not_" + word
