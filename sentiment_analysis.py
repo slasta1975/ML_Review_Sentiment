@@ -1,49 +1,6 @@
-import re
+
 from typing import List, Tuple
-from word_counter import WordCounter, remove_punctuations
-
-
-def preprocess_review(review: str, advanced: bool = False) -> List[str]:
-    """
-    Splits the review into sentences using a regular expression to account for multiple delimiters.
-    Returns a list of lower-case words without punctuations.
-    If 'advanced' is True, it adds a "not_" prefix to words following negations unless special cases are detected that cancel negations.
-    """
-    sentences = re.split(r"[.!?]", review)
-
-    all_words = []
-
-    for sentence in sentences:
-        sentence = sentence.strip()
-        sentence = remove_punctuations(sentence)
-        words = sentence.lower().split()
-
-        if not advanced:
-            all_words.extend(words)
-            continue
-
-        advanced_words = []
-        negate = False
-
-        for word in words:
-            if (word in ["not", "no", "never", "neither", "nor"] or "n't" in word) or (
-                "far" in word
-                and len(words) > words.index(word) + 1
-                and words[words.index(word) + 1] == "from"
-            ):
-                negate = True
-            elif word == "only" and words[words.index(word) - 1] == "not":
-                negate = False
-            elif negate and word not in ["but", "however", "nevertheless"]:
-                word = "not_" + word
-            else:
-                negate = False
-
-            advanced_words.append(word)
-
-        all_words.extend(advanced_words)
-
-    return all_words
+from word_counter import WordCounter
 
 
 def compute_sentiment(

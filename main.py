@@ -10,7 +10,6 @@ POS_FILES_FEED = r"train\pos\*.txt"
 NEG_FILES_FEED = r"train\neg\*.txt"
 
 
-
 def main() -> None:
     """
     Main program flow for sentiment analysis.
