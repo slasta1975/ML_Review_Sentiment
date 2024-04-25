@@ -1,3 +1,16 @@
+"""
+This module handles the core logic for sentiment analysis of movie reviews.
+It includes functions to compute the sentiment of a review and to print 
+results in an informative way.
+
+Functions:
+- `compute_sentiment`: Computes the overall sentiment of a given review
+  based on word counts from positive and negative reviews. Supports advanced
+  mode that accounts for negation.
+- `print_sentiment`: Outputs a summary of the review's overall sentiment.
+- `print_sentiment_details`: Outputs detailed information about the sentiment
+  for each word in the review, including cases with negation handling.
+"""
 
 from typing import List, Tuple
 from word_counter import WordCounter

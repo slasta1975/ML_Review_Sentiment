@@ -1,5 +1,15 @@
 """
-This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. It counts the occurrences of positive and negative words in the reviews to determine their sentiment. Reviews can be manually entered or loaded from saved text files. An advanced mode analysis is also possible which can detect negation in the analysed review and inverse sentiments of affected words thus improving the whole review sentiment analysis.
+This Python project performs sentiment analysis on movie reviews using a basic bag-of-words approach. 
+It counts the occurrences of positive and negative words in the reviews to determine their sentiment. 
+Reviews can be manually entered or loaded from saved text files. An advanced mode analysis is also possible, 
+detecting negations in the analyzed review and inverting the sentiments of affected words, improving overall review analysis.
+
+This script uses the following modules:
+- `word_counter`: To count the occurrences of positive and negative words.
+- `menu_handling`: To display the main menu and get user input.
+- `review_handling`: To enter or read a review for analysis.
+- `sentiment_analysis`: To calcualte review sentiment in either standard or advanced mode.
+- `file_management`: To delete a review file.
 """
 
 from word_counter import WordCounter

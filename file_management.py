@@ -1,3 +1,18 @@
+"""
+This module handles file management for sentiment analysis, including operations
+to list, read, save, and delete movie review files. It allows users to interact
+with stored reviews in various ways.
+
+Functions:
+- `list_review_files`: Lists all review files in a given directory, along with
+  the first sentence of each file for context.
+- `get_user_choice`: Prompts the user to enter a choice and validates the input.
+- `read_review_file`: Reads the content of a selected review file and returns it.
+- `save_review`: Saves a new review to a text file, following a predefined naming
+  pattern.
+- `delete_review_file`: Deletes a specific review file after the user confirms
+  their choice.
+"""
 
 import os
 import re

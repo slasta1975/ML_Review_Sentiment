@@ -1,3 +1,15 @@
+"""
+This module defines the `WordCounter` class for counting word occurrences in a set of text files,
+which can be used for sentiment analysis. It also provides a utility function to remove specified
+punctuations from text.
+
+The `WordCounter` class maintains separate dictionaries for positive and negative reviews, allowing
+for word-based sentiment analysis. It supports reading text files to count word occurrences and stores
+the results in dictionaries for later retrieval.
+
+The `remove_punctuations` function allows removing various punctuations from text to normalize it
+for easier processing.
+"""
 
 import glob
 from typing import Dict

@@ -1,3 +1,15 @@
+"""
+This module contains functions for handling movie reviews in a sentiment analysis application.
+
+Functions:
+- `preprocess_review`: Processes a movie review into individual words, with an option for
+  advanced processing that adds "not_" prefixes to words following negations.
+- `enter_or_read_review_for_analysis`: Prompts the user to enter a new review for analysis
+  or reads an existing review from a file. It also allows users to choose between basic
+  and advanced sentiment analysis and includes options for saving the review and viewing
+  detailed sentiment information.
+"""
+
 import re
 from typing import List
 from file_management import read_review_file, save_review
