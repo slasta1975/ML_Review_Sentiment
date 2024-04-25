@@ -14,7 +14,12 @@ import re
 from typing import List
 from file_management import read_review_file, save_review
 from word_counter import WordCounter, remove_punctuations
-from sentiment_analysis import compute_sentiment, print_sentiment, print_sentiment_details
+from sentiment_analysis import (
+    compute_sentiment,
+    print_sentiment,
+    print_sentiment_details,
+)
+
 
 def preprocess_review(review: str, advanced: bool = False) -> List[str]:
     """
@@ -86,8 +91,29 @@ def enter_or_read_review_for_analysis(
 
     print_sentiment(sentiment)
 
-    if input("\nAre you interested in per-word sentiment details? [y/n]: ").lower() == "y":
+    if (
+        input("\nAre you interested in per-word sentiment details? [y/n]: ").lower()
+        == "y"
+    ):
         print_sentiment_details(sentiment_details)
+
+    if not advanced:
+        advanced_analysis = input(
+            "\nDo you want to perform advanced sentiment analysis after all? [y/n]: "
+        )
+        if advanced_analysis.lower() == "y":
+            preprocessed_review = preprocess_review(review, advanced=True)
+            sentiment, sentiment_details = compute_sentiment(
+                preprocessed_review, word_counter, advanced=True
+            )
+            print_sentiment(sentiment)
+            if (
+                input(
+                    "\nAre you interested in per-word sentiment details? [y/n]: "
+                ).lower()
+                == "y"
+            ):
+                print_sentiment_details(sentiment_details)
 
     if is_enter_review:
         if input("\nDo you want to save this review? [y/n]: ").lower() == "y":

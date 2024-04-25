@@ -17,8 +17,6 @@ from menu_handling import display_menu
 from review_handling import enter_or_read_review_for_analysis
 from file_management import delete_review_file
 
-
-
 POS_FILES_FEED = r"train\pos\*.txt"
 NEG_FILES_FEED = r"train\neg\*.txt"
 

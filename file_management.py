@@ -109,7 +109,7 @@ def save_review(review: str, review_files_path: str) -> None:
     ) as stream:
         stream.write(review)
 
-    print(f"Review saved to {file_name}.")
+    print(f"\nReview saved to {file_name}.")
 
 
 def delete_review_file() -> None:
@@ -132,4 +132,4 @@ def delete_review_file() -> None:
     chosen_file = os.path.join(REVIEW_FILES_PATH, files[choice - 1])
     os.remove(chosen_file)
 
-    print(f"Review file '{files[choice - 1]}' has been deleted.")
+    print(f"\nReview file '{files[choice - 1]}' has been deleted.")
