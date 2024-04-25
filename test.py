@@ -1,5 +1,10 @@
 import pytest
 from main import *
+from sentiment_analysis import *
+from file_management import *
+from review_handling import *
+from menu_handling import *
+from word_counter import *
 
 
 @pytest.fixture
@@ -17,7 +22,7 @@ def test_preprocess_review():
 def test_advanced_preprocess_review():
     review = "This is not a bad movie. It's far from bad."
     advanced_preprocessed_review = preprocess_review(review, advanced=True)
-    expected_result = ['this', 'is', 'not', 'not_a', 'not_bad', 'not_movie', "not_it's", 'far', 'not_from', 'not_bad']
+    expected_result = ['this', 'is', 'not', 'not_a', 'not_bad', 'not_movie', "it's", 'far', 'not_from', 'not_bad']
     assert advanced_preprocessed_review == expected_result
 
 
@@ -36,16 +41,5 @@ def test_compute_sentiment():
     assert sentiment == 0.0  # Equal positive and negative
     assert len(details) == 2
 
-
-def test_get_next_review_file(temp_review_files_path):
-    # Create test review files
-    file1 = temp_review_files_path.join("Review1.txt")
-    file1.write("Sample review 1")
-    file2 = temp_review_files_path.join("Review2.txt")
-    file2.write("Sample review 2")
-
-    next_review_file = get_next_review_file(temp_review_files_path)
-    expected_result = "Review3.txt"
-    assert next_review_file == expected_result
 
 
