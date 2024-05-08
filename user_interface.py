@@ -1,5 +1,5 @@
 from sentiment_analysis import WordCounter, compute_sentiment
-from file_operations import list_review_files, read_review_file, save_review, delete_review_file
+from file_operations import  read_review_file, save_review, delete_review_file
 from preprocessing import preprocess_review
 
 
@@ -53,6 +53,8 @@ def enter_or_read_review_for_analysis(
     if is_enter_review:
         if input("\nSave this review? [y/n]: ").lower() == "y":
             save_review(review, "reviews")
+    
+    input("\nPress enter to return to the main menu... ")
 
 
 def main():

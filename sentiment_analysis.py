@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict
-from preprocessing import preprocess_review, remove_punctuations
+from preprocessing import remove_punctuations
 
 
 class WordCounter:

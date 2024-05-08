@@ -58,7 +58,7 @@ def read_review_file(review_files_path: str) -> str:
         return ""
 
     choice = get_user_choice(
-        files, "\nEnter the number of the review file you want to read:"
+        files, "\nEnter the number of the review file you want to read or press Enter to return to Main Menu:"
     )
     if choice is None:
         return ""
@@ -103,7 +103,7 @@ def delete_review_file(review_files_path: str) -> None:
         return
 
     choice = get_user_choice(
-        files, "\nEnter the number of the review file you want to delete:"
+        files, "\nEnter the number of the review file you want to delete or press Enter to return to Main Menu:"
     )
     if choice is None:
         return
@@ -112,3 +112,4 @@ def delete_review_file(review_files_path: str) -> None:
     os.remove(chosen_file)
 
     print(f"\nReview file '{files[choice - 1]}' has been deleted.")
+    input("\nPress enter to return to the main menu... ")
