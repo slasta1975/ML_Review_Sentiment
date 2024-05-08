@@ -53,20 +53,29 @@ def get_user_choice(files, prompt):
             print("Invalid input. Try again.")
 
 def read_review_file(review_files_path: str) -> str:
+    """
+    Reads a review file from the provided path and returns its content.
+    """
     files = list_review_files(review_files_path)
     if not files:
-        return ""
+        return None
 
     choice = get_user_choice(
-        files, "\nEnter the number of the review file you want to read or press Enter to return to Main Menu:"
+        files,
+        "\nEnter the number of the review file you want to read (press Enter to return to the main menu): ",
     )
     if choice is None:
-        return ""
-    
+        return None
+
     chosen_file = os.path.join(review_files_path, files[choice - 1])
     with open(chosen_file, "r", encoding="utf-8") as stream:
         review_content = stream.read()
 
+    print("\n--------------------------------------")
+    print("Review file content:")
+    print("--------------------------------------")
+    print(review_content)
+    print("--------------------------------------")
     return review_content
 
 
@@ -103,7 +112,7 @@ def delete_review_file(review_files_path: str) -> None:
         return
 
     choice = get_user_choice(
-        files, "\nEnter the number of the review file you want to delete or press Enter to return to Main Menu:"
+        files, "\nEnter the number of the review file you want to delete or press <enter> to return to Main Menu: "
     )
     if choice is None:
         return
@@ -112,4 +121,4 @@ def delete_review_file(review_files_path: str) -> None:
     os.remove(chosen_file)
 
     print(f"\nReview file '{files[choice - 1]}' has been deleted.")
-    input("\nPress enter to return to the main menu... ")
+    input("\nPress <enter> to return to the Main Menu... ")
